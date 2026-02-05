@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Automate image generation on Google Whisk with our premium image generator bot. Create stunning AI-generated images with customizable prompts." />
+  <meta name="author" content="Whisk Image Generator Bot" />
+  <title>Whisk Image Generator Bot - Professional Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1> Whisk Image Generator Bot</h1>
+      <p class="subtitle">Automate image blending on Google Whisk</p>
+    </header>
+
+    <!-- Mode Selection (Hidden for Whisk implementation) -->
+    <section class="section" style="text-align: center; display: none;">
+      <h2><span class="icon">⚡</span> Select Mode</h2>
+      <div id="geminiModeOptions"
+        style="display: flex; gap: 15px; justify-content: center; margin-top: 10px; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 8px;">
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9em;">
+          <input type="radio" name="geminiModel" value="Fast" checked>
+          <span>Fast</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9em;">
+          <input type="radio" name="geminiModel" value="Thinking">
+          <span>Thinking</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9em;">
+          <input type="radio" name="geminiModel" value="Pro">
+          <span>Pro</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Image Selection -->
+    <section class="section">
+      <h2><span class="icon">📷</span> Select Subject Images</h2>
+      <div class="button-group">
+        <button id="selectFolderBtn" class="btn btn-secondary">
+          <span class="icon">📁</span> Choose Folder
+        </button>
+        <button id="selectImagesBtn" class="btn btn-secondary">
+          <span class="icon">🖼</span> Choose Images
+        </button>
+      </div>
+      <input type="file" id="folderInput" webkitdirectory multiple style="display: none" />
+      <input type="file" id="filesInput" accept="image/*" multiple style="display: none" />
+      <div id="imageCount" class="info-text">No images selected</div>
+    </section>
+
+    <!-- Optional Scene Image -->
+    <section class="section">
+      <h2><span class="icon">🌄</span> Scene Image (Optional)</h2>
+      <div class="button-group">
+        <button id="selectSceneBtn" class="btn btn-secondary">
+          <span class="icon">🖼</span> Choose Scene Image
+        </button>
+        <button id="clearSceneBtn" class="btn btn-danger" style="display: none;">
+          <span class="icon">✗</span> Clear
+        </button>
+      </div>
+      <input type="file" id="sceneInput" accept="image/*" style="display: none" />
+      <div id="sceneImageStatus" class="info-text">No scene image selected</div>
+    </section>
+
+    <!-- Optional Style Image -->
+    <section class="section">
+      <h2><span class="icon">🎨</span> Style Image (Optional)</h2>
+      <div class="button-group">
+        <button id="selectStyleBtn" class="btn btn-secondary">
+          <span class="icon">🖼</span> Choose Style Image
+        </button>
+        <button id="clearStyleBtn" class="btn btn-danger" style="display: none;">
+          <span class="icon">✗</span> Clear
+        </button>
+      </div>
+      <input type="file" id="styleInput" accept="image/*" style="display: none" />
+      <div id="styleImageStatus" class="info-text">No style image selected</div>
+    </section>
+
+    <!-- Prompts -->
+    <section class="section">
+      <h2><span class="icon">📝</span> All Prompt Angles</h2>
+      <div class="prompts-container" id="promptsContainer">
+        <div class="prompt-group">
+          <label for="prompt1">Prompt :</label>
+          <textarea id="prompt1" class="prompt-input" placeholder="e.g., Ultra-realistic front view...">
+Ultra-realistic luxury jewelry photography of this ring, captured from a precise top-down flat lay angle, ring perfectly centered and aligned, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+        </div>
+        <div class="prompt-group">
+          <label for="prompt2">Prompt :</label>
+          <textarea id="prompt2" class="prompt-input" placeholder="e.g., Side view with dramatic lighting...">
+Ultra-realistic luxury jewelry photography of this ring, captured from a clean right side profile angle, emphasizing band thickness and setting height, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+        </div>
+        <div class="prompt-group">
+          <label for="prompt3">Prompt :</label>
+          <textarea id="prompt3" class="prompt-input" placeholder="e.g., Top-down perspective...">
+Ultra-realistic luxury jewelry photography of this ring, captured from a low-angle hero perspective slightly below the ring level, creating a premium dramatic look, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+        </div>
+        <div class="prompt-group">
+          <label for="prompt4">Prompt :</label>
+          <textarea id="prompt4" class="prompt-input" placeholder="e.g., Close-up detail shot...">
+Ultra-realistic luxury jewelry photography of this ring, captured from a straight back view angle showcasing the rear of the band and setting, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+        </div>
+        <div class="prompt-group">
+          <label for="prompt5">Prompt :</label>
+          <textarea id="prompt5" class="prompt-input" placeholder="e.g., 45-degree angle showcase...">
+Ultra-realistic luxury jewellery photography of this ring worn on a female model's hand, elegant natural hand pose, realistic skin texture, ring in sharp focus, hand resting on soft ivory satin fabric with smooth flowing folds and gently rolled curves</textarea>
+        </div>
+      </div>
+      <div class="button-group" style="margin-top: 12px">
+        <button id="addPromptBtn" class="btn btn-secondary">
+          <span class="icon">＋</span> Add Prompt
+        </button>
+        <button id="managePromptsBtn" class="btn btn-secondary">
+          <span class="icon">⚙</span> Manage Templates
+        </button>
+      </div>
+    </section>
+
+    <!-- Controls -->
+    <section class="section">
+      <button id="startBtn" class="btn btn-primary" disabled>
+        <span class="icon">▶</span> Start Generation
+      </button>
+      <button id="resumeBtn" class="btn btn-primary" style="display: none">
+        <span class="icon">▶</span> Resume Last Session
+      </button>
+
+      <button id="restartBtn" class="btn btn-danger" style="display: none">
+        <span class="icon">↻</span> Start Fresh
+      </button>
+      <button id="stopBtn" class="btn btn-danger" style="display: none">
+        <span class="icon">■</span> Stop
+      </button>
+    </section>
+
+    <!-- Progress Console -->
+    <section class="section">
+      <h2><span class="icon">📊</span> Progress Console</h2>
+      <div id="console" class="console"></div>
+    </section>
+
+    <!-- Status -->
+    <div id="status" class="status"></div>
+  </div>
+
+  <!-- Manage Templates Modal -->
+  <div id="manageModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><span class="icon">📋</span> Manage Prompt Templates</h2>
+        <span class="close-btn" id="closeManageModal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div id="templateList" class="template-list">
+          <!-- Templates will be injected here -->
+          <p class="empty-text">No saved templates yet.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="openAddTemplateBtn" class="btn btn-primary"><span class="icon">＋</span> Create New Template</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Template Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="editModalTitle"><span class="icon">📝</span> New Template</h2>
+        <span class="close-btn" id="closeEditModal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="templateName">Template Name:</label>
+          <input type="text" id="templateName" class="text-input" placeholder="e.g., Jewelry Product Shots">
+        </div>
+
+        <div class="form-group">
+          <label>Prompts:</label>
+          <div id="templatePromptsContainer" class="prompts-container small-gap">
+            <!-- Dynamic Prompt Inputs -->
+          </div>
+          <button id="addTemplatePromptBtn" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+            <span class="icon">＋</span> Add Another Prompt
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+        <button id="saveTemplateBtn" class="btn btn-primary"><span class="icon">💾</span> Save Template</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="dashboard.js"></script>
+</body>
+
+</html>
