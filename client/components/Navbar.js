@@ -1,13 +1,18 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuth';
+import { User, LogOut, CreditCard } from 'lucide-react';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
     const pathname = usePathname();
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,8 +42,8 @@ export default function Navbar() {
                             key={link.name}
                             href={link.href}
                             className={`relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${pathname === link.href
-                                    ? 'text-white bg-white/10 shadow-inner'
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                ? 'text-white bg-white/10 shadow-inner'
+                                : 'text-gray-400 hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             {link.name}
@@ -55,16 +60,62 @@ export default function Navbar() {
 
                 {/* Auth Buttons - Desktop */}
                 <div className="hidden md:flex items-center gap-4">
-                    <Link href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Login</Link>
-                    <Link href="/register">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="px-6 py-2.5 rounded-full bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/25 border border-white/10 transition-all text-sm font-semibold text-white"
-                        >
-                            Get Started
-                        </motion.button>
-                    </Link>
+                    {user ? (
+                        <div className="relative">
+                            <button
+                                onClick={() => setProfileOpen(!profileOpen)}
+                                className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-sm">
+                                    {user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <span className="text-sm font-medium text-white">{user.name}</span>
+                            </button>
+
+                            {/* Dropdown */}
+                            <AnimatePresence>
+                                {profileOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-xl shadow-xl overflow-hidden glass"
+                                    >
+                                        <div className="p-2">
+                                            <div className="px-3 py-2 border-b border-white/5 mb-2">
+                                                <p className="text-xs text-gray-400">Signed in as</p>
+                                                <p className="text-sm font-medium text-white truncate">{user.email}</p>
+                                            </div>
+                                            <Link href="/plans" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-gray-300 hover:text-white transition-colors">
+                                                <CreditCard size={16} />
+                                                Subscription
+                                            </Link>
+                                            <button
+                                                onClick={() => { logout(); setProfileOpen(false); }}
+                                                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-500/10 text-sm text-red-400 hover:text-red-300 transition-colors"
+                                            >
+                                                <LogOut size={16} />
+                                                Logout
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    ) : (
+                        <>
+                            <Link href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Login</Link>
+                            <Link href="/register">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/25 border border-white/10 transition-all text-sm font-semibold text-white"
+                                >
+                                    Get Started
+                                </motion.button>
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Toggle */}
@@ -100,6 +151,18 @@ export default function Navbar() {
                         className="md:hidden glass-nav border-t border-glass-border overflow-hidden bg-black/90 backdrop-blur-xl"
                     >
                         <div className="container py-8 flex flex-col gap-6">
+                            {user && (
+                                <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/5 border border-white/10">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                                        {user.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-white">{user.name}</p>
+                                        <p className="text-sm text-gray-400">{user.email}</p>
+                                    </div>
+                                </div>
+                            )}
+
                             {navLinks.map((link, index) => (
                                 <motion.div
                                     key={link.name}
@@ -123,16 +186,27 @@ export default function Navbar() {
                                 className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-2"
                             />
                             <div className="flex flex-col gap-4">
-                                <Link
-                                    href="/login"
-                                    className="text-center text-lg font-medium text-gray-300 hover:text-white"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Login
-                                </Link>
-                                <Link href="/register" onClick={() => setIsOpen(false)}>
-                                    <button className="w-full btn py-3 text-lg">Get Started Now</button>
-                                </Link>
+                                {user ? (
+                                    <button
+                                        onClick={() => { logout(); setIsOpen(false); }}
+                                        className="w-full btn py-3 text-lg bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20"
+                                    >
+                                        Logout
+                                    </button>
+                                ) : (
+                                    <>
+                                        <Link
+                                            href="/login"
+                                            className="text-center text-lg font-medium text-gray-300 hover:text-white"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Login
+                                        </Link>
+                                        <Link href="/register" onClick={() => setIsOpen(false)}>
+                                            <button className="w-full btn py-3 text-lg">Get Started Now</button>
+                                        </Link>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </motion.div>

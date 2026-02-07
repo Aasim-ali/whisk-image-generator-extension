@@ -1,58 +1,104 @@
 import { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import {
+    Box,
+    Container,
+    Paper,
+    TextField,
+    Button,
+    Typography,
+    Alert,
+    Avatar,
+} from '@mui/material';
+import { LockOutlined as LockIcon } from '@mui/icons-material';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+    const { login, loading, error } = useAuth();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-
-            if (res.data.user.role !== 'admin') {
-                setError('Access Denied: Admins only');
-                return;
-            }
-
-            localStorage.setItem('adminToken', res.data.token);
-            localStorage.setItem('adminUser', JSON.stringify(res.data.user));
-            navigate('/dashboard');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Login failed');
-        }
+        await login(email, password);
     };
 
     return (
-        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f2f5' }}>
-            <div style={{ padding: '2rem', background: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
-                <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Admin Login</h2>
-                {error && <p style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>}
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc' }}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc' }}
-                        required
-                    />
-                    <button type="submit" style={{ padding: '0.8rem', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                        Login
-                    </button>
-                </form>
-            </div>
-        </div>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            }}
+        >
+            <Container maxWidth="xs">
+                <Paper
+                    elevation={10}
+                    sx={{
+                        p: 4,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        borderRadius: 2,
+                    }}
+                >
+                    <Avatar sx={{ m: 1, bgcolor: 'primary.main', width: 56, height: 56 }}>
+                        <LockIcon fontSize="large" />
+                    </Avatar>
+                    <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>
+                        Admin Login
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                        Sign in to access the admin panel
+                    </Typography>
+
+                    {error && (
+                        <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+
+                    <Box component="form" onSubmit={handleLogin} sx={{ width: '100%' }}>
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="Email Address"
+                            name="email"
+                            autoComplete="email"
+                            autoFocus
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            disabled={loading}
+                        />
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={loading}
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            size="large"
+                            sx={{ mt: 3, mb: 2, py: 1.5 }}
+                            disabled={loading}
+                        >
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </Button>
+                    </Box>
+                </Paper>
+            </Container>
+        </Box>
     );
 }

@@ -1,49 +1,66 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import Layout from '../components/Layout';
+import { useAdminData } from '../hooks/useAdminData';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress } from '@mui/material';
 
 export default function Customers() {
     const [users, setUsers] = useState([]);
+    const { fetchCustomers, loading } = useAdminData();
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const token = localStorage.getItem('adminToken');
-                const res = await axios.get('http://localhost:5000/api/admin/customers', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setUsers(res.data);
-            } catch (error) {
-                console.error(error);
+        const loadUsers = async () => {
+            const data = await fetchCustomers();
+            if (data) {
+                setUsers(data);
             }
         };
-        fetchUsers();
-    }, []);
+        loadUsers();
+    }, [fetchCustomers]);
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <Link to="/dashboard" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '1rem', display: 'inline-block' }}>&larr; Back to Dashboard</Link>
-            <h1>Customers</h1>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-                <thead>
-                    <tr style={{ background: '#f8f9fa', textAlign: 'left' }}>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Name</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Email</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Credits</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Joined</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user.id}>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{user.name}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{user.email}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{user.credits}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <Layout>
+            <Box>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Customers
+                </Typography>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell><strong>Name</strong></TableCell>
+                                <TableCell><strong>Email</strong></TableCell>
+                                <TableCell><strong>Credits</strong></TableCell>
+                                <TableCell><strong>Joined</strong></TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                                        <CircularProgress size={40} />
+                                    </TableCell>
+                                </TableRow>
+                            ) : users.map(user => (
+                                <TableRow key={user.id} hover>
+                                    <TableCell>{user.name}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>{user.credits}</TableCell>
+                                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                                </TableRow>
+                            ))}
+                            {users.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center">
+                                        <Typography variant="body2" color="text.secondary">
+                                            No customers found
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
+        </Layout>
     );
 }

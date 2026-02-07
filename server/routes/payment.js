@@ -10,21 +10,26 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+// Get Razorpay Key
+router.get('/key', (req, res) => {
+    res.json({ key: process.env.RAZORPAY_KEY_ID });
+});
+
 // Create Order
 router.post('/order', async (req, res) => {
     try {
         const { planId, userId } = req.body;
 
-        // In a real app, fetch price from Plan model
-        // const plan = await Plan.findByPk(planId);
-        // const amount = plan.price;
+        const plan = await Plan.findByPk(planId);
+        if (!plan) {
+            return res.status(404).json({ message: 'Plan not found' });
+        }
 
-        // Hardcoding for now/demo as Plan data might be empty
-        const amount = 50000; // 500 INR
+        const amount = plan.price; // Price is already in smallest currency unit (paise)
 
         const options = {
             amount: amount,
-            currency: 'INR',
+            currency: plan.currency || 'INR',
             receipt: `receipt_${Date.now()}`,
         };
 
@@ -34,6 +39,7 @@ router.post('/order', async (req, res) => {
 
         res.json(order);
     } catch (error) {
+        console.error('Order Error:', error);
         res.status(500).send(error);
     }
 });
@@ -57,28 +63,37 @@ router.post('/verify', async (req, res) => {
             return res.status(400).json({ msg: 'Transaction not legit!' });
         }
 
+        const plan = await Plan.findByPk(planId);
+        const user = await User.findByPk(userId);
+
+        if (!plan || !user) {
+            return res.status(404).json({ message: 'User or Plan not found' });
+        }
+
         // Save transaction
         await Transaction.create({
             razorpay_order_id: razorpayOrderId,
             razorpay_payment_id: razorpayPaymentId,
             razorpay_signature: razorpaySignature,
             status: 'success',
-            amount: 50000, // Should take from order or plan
+            amount: plan.price,
             userId: userId,
-            planId: planId // Optional if you want to link plan
+            planId: planId
         });
 
-        // Update User Credits/Plan here if needed
-        // const user = await User.findByPk(userId);
-        // user.credits += 100;
-        // await user.save();
+        // Add credits to user and update plan
+        user.credits += plan.credits;
+        user.planId = plan.id;
+        await user.save();
 
         res.json({
             msg: 'success',
             orderId: razorpayOrderId,
             paymentId: razorpayPaymentId,
+            newCredits: user.credits
         });
     } catch (error) {
+        console.error('Verify Error:', error);
         res.status(500).send(error);
     }
 });

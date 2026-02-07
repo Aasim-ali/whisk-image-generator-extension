@@ -1,51 +1,68 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import Layout from '../components/Layout';
+import { useAdminData } from '../hooks/useAdminData';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress } from '@mui/material';
 
 export default function Transactions() {
     const [transactions, setTransactions] = useState([]);
+    const { fetchTransactions, loading } = useAdminData();
 
     useEffect(() => {
-        const fetchTransactions = async () => {
-            try {
-                const token = localStorage.getItem('adminToken');
-                const res = await axios.get('http://localhost:5000/api/admin/transactions', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setTransactions(res.data);
-            } catch (error) {
-                console.error(error);
+        const loadTransactions = async () => {
+            const data = await fetchTransactions();
+            if (data) {
+                setTransactions(data);
             }
         };
-        fetchTransactions();
-    }, []);
+        loadTransactions();
+    }, [fetchTransactions]);
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <Link to="/dashboard" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '1rem', display: 'inline-block' }}>&larr; Back to Dashboard</Link>
-            <h1>Transactions</h1>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-                <thead>
-                    <tr style={{ background: '#f8f9fa', textAlign: 'left' }}>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Payment ID</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>User</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Amount</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Status</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {transactions.map(tx => (
-                        <tr key={tx.id}>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.razorpay_payment_id}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.User?.name}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.amount / 100} INR</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.status}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{new Date(tx.createdAt).toLocaleDateString()}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <Layout>
+            <Box>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Transactions
+                </Typography>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell><strong>Payment ID</strong></TableCell>
+                                <TableCell><strong>User</strong></TableCell>
+                                <TableCell><strong>Amount</strong></TableCell>
+                                <TableCell><strong>Status</strong></TableCell>
+                                <TableCell><strong>Date</strong></TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                                        <CircularProgress size={40} />
+                                    </TableCell>
+                                </TableRow>
+                            ) : transactions.map(tx => (
+                                <TableRow key={tx.id} hover>
+                                    <TableCell>{tx.razorpay_payment_id}</TableCell>
+                                    <TableCell>{tx.User?.name}</TableCell>
+                                    <TableCell>{tx.amount / 100} INR</TableCell>
+                                    <TableCell>{tx.status}</TableCell>
+                                    <TableCell>{new Date(tx.createdAt).toLocaleDateString()}</TableCell>
+                                </TableRow>
+                            ))}
+                            {transactions.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={5} align="center">
+                                        <Typography variant="body2" color="text.secondary">
+                                            No transactions found
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
+        </Layout>
     );
 }

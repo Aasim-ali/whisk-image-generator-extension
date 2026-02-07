@@ -1,77 +1,121 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import Layout from '../components/Layout';
+import { useAdminData } from '../hooks/useAdminData';
+import { Box, Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress } from '@mui/material';
+import { People as PeopleIcon, Receipt as ReceiptIcon, CreditCard as CreditCardIcon } from '@mui/icons-material';
 
 export default function Dashboard() {
     const [stats, setStats] = useState({ users: 0, transactions: 0 });
     const [recentTransactions, setRecentTransactions] = useState([]);
-    const navigate = useNavigate();
+    const { fetchDashboardStats, loading } = useAdminData();
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const token = localStorage.getItem('adminToken');
-                const res = await axios.get('http://localhost:5000/api/admin/dashboard', {
-                    headers: { Authorization: `Bearer ${token}` } // Note: Backend needs middleware to use this
-                });
-                setStats(res.data.stats);
-                setRecentTransactions(res.data.recentTransactions);
-            } catch (error) {
-                console.error(error);
+        const loadStats = async () => {
+            const data = await fetchDashboardStats();
+            if (data) {
+                setStats(data.stats);
+                setRecentTransactions(data.recentTransactions);
             }
         };
-        fetchStats();
-    }, []);
+        loadStats();
+    }, [fetchDashboardStats]);
 
-    const handleLogout = () => {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
-        navigate('/login');
-    };
+    const StatCard = ({ title, value, icon, color, link }) => (
+        <Card sx={{ height: '100%' }}>
+            <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box>
+                        <Typography color="text.secondary" gutterBottom variant="overline">
+                            {title}
+                        </Typography>
+                        <Typography variant="h3" component="div">
+                            {value}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ color: color, fontSize: 48 }}>
+                        {icon}
+                    </Box>
+                </Box>
+            </CardContent>
+        </Card>
+    );
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                <h1>Admin Dashboard</h1>
-                <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
-            </header>
+        <Layout>
+            <Box>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Dashboard Overview
+                </Typography>
 
-            <div style={{ display: 'flex', gap: '2rem', marginBottom: '3rem' }}>
-                <Link to="/customers" style={{ flex: 1, textDecoration: 'none', color: 'inherit' }}>
-                    <div style={{ padding: '2rem', background: '#e7f5ff', borderRadius: '8px', textAlign: 'center' }}>
-                        <h3>Total Users</h3>
-                        <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.users}</p>
-                    </div>
-                </Link>
-                <Link to="/transactions" style={{ flex: 1, textDecoration: 'none', color: 'inherit' }}>
-                    <div style={{ padding: '2rem', background: '#e3fcef', borderRadius: '8px', textAlign: 'center' }}>
-                        <h3>Total Transactions</h3>
-                        <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.transactions}</p>
-                    </div>
-                </Link>
-            </div>
+                <Grid container spacing={3} sx={{ mb: 4 }}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <Link to="/customers" style={{ textDecoration: 'none' }}>
+                            <StatCard
+                                title="Total Users"
+                                value={stats.users}
+                                icon={<PeopleIcon fontSize="inherit" />}
+                                color="primary.main"
+                            />
+                        </Link>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <Link to="/transactions" style={{ textDecoration: 'none' }}>
+                            <StatCard
+                                title="Total Transactions"
+                                value={stats.transactions}
+                                icon={<ReceiptIcon fontSize="inherit" />}
+                                color="success.main"
+                            />
+                        </Link>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <Link to="/plans" style={{ textDecoration: 'none' }}>
+                            <StatCard
+                                title="Subscription Plans"
+                                value="-"
+                                icon={<CreditCardIcon fontSize="inherit" />}
+                                color="info.main"
+                            />
+                        </Link>
+                    </Grid>
+                </Grid>
 
-            <h2>Recent Transactions</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-                <thead>
-                    <tr style={{ background: '#f8f9fa', textAlign: 'left' }}>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>ID</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>User</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Amount</th>
-                        <th style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {recentTransactions.map(tx => (
-                        <tr key={tx.id}>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.razorpay_payment_id}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.User?.name || 'Unknown'}</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.amount / 100} INR</td>
-                            <td style={{ padding: '1rem', borderBottom: '1px solid #dee2e6' }}>{tx.status}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                <Typography variant="h5" component="h2" gutterBottom>
+                    Recent Transactions
+                </Typography>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell><strong>ID</strong></TableCell>
+                                <TableCell><strong>User</strong></TableCell>
+                                <TableCell><strong>Amount</strong></TableCell>
+                                <TableCell><strong>Status</strong></TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {recentTransactions.map(tx => (
+                                <TableRow key={tx.id} hover>
+                                    <TableCell>{tx.razorpay_payment_id}</TableCell>
+                                    <TableCell>{tx.User?.name || 'Unknown'}</TableCell>
+                                    <TableCell>{tx.amount / 100} INR</TableCell>
+                                    <TableCell>{tx.status}</TableCell>
+                                </TableRow>
+                            ))}
+                            {recentTransactions.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center">
+                                        <Typography variant="body2" color="text.secondary">
+                                            No recent transactions
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
+        </Layout>
     );
 }
