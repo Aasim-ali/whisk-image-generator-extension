@@ -1,3 +1,5 @@
+importScripts('db.js');
+
 // Background Service Worker - Tab Management & Coordination
 
 let whiskTab;
@@ -6,8 +8,36 @@ let currentImageIndex = 0;
 let totalImages = 0;
 let promptCounts = 0;
 const imageDownloadSet = new Set();
+// ... existing listeners ...
 
-// Message listener
+// ... (keep existing listeners and helper functions like startGeneration, waitForTabsReady, openWhiskTab, closeTabs, generateKey) ...
+
+async function getStorageDataSafely(index, maxRetries = 5) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    // parallel fetch from IDB and local storage
+    const [images, promptsData, sceneImage, styleImage] = await Promise.all([
+      db.getImages(),
+      chrome.storage.local.get(["prompts"]),
+      db.getSceneImage(),
+      db.getStyleImage()
+    ]);
+
+    const prompts = promptsData?.prompts;
+
+    if (Array.isArray(images) && images[index]) {
+      return { images, prompts, sceneImage, styleImage };
+    }
+
+    sendLogToPopup(
+      `⚠️ Image ${index + 1} not ready (retry ${attempt}/${maxRetries})`,
+      "warning",
+    );
+
+    await sleep(500 * attempt); // backoff
+  }
+
+  throw new Error(`Image ${index + 1} not available after retries`);
+}
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "START_GENERATION") {
     startGeneration(message.data, message.resume === true);
@@ -170,7 +200,7 @@ async function openWhiskTab() {
 
 async function closeTabs() {
   if (whiskTab) {
-    chrome.tabs.remove(whiskTab).catch(() => {});
+    chrome.tabs.remove(whiskTab).catch(() => { });
     whiskTab = null;
   }
 }
@@ -179,117 +209,7 @@ function generateKey() {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-async function getStorageDataSafely(index, maxRetries = 5) {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    const result = await chrome.storage.local.get([
-      "images",
-      "prompts",
-      "sceneImage",
-      "styleImage",
-    ]);
 
-    const images = result?.images;
-
-    if (Array.isArray(images) && images[index]) {
-      return result;
-    }
-
-    sendLogToPopup(
-      `⚠️ Image ${index + 1} not ready (retry ${attempt}/${maxRetries})`,
-      "warning",
-    );
-
-    await sleep(500 * attempt); // backoff
-  }
-
-  throw new Error(`Image ${index + 1} not available after retries`);
-}
-
-// async function processNextImage() {
-//   if (!isRunning || currentImageIndex >= totalImages) {
-//     // Clear progress BEFORE stopping to prevent UI from showing wrong state
-//     await clearProgress();
-//     sendLogToPopup("🎉 All images processed!", "success");
-//     sendMessageToPopup({ action: "COMPLETE" });
-//     stopGeneration(true); // skipSave = true, don't save progress when complete
-//     return;
-//   }
-
-//   await closeTabs();
-//   await openWhiskTab();
-
-//   const imageNumber = currentImageIndex + 1;
-//   sendLogToPopup(`\n${"=".repeat(50)}`, "info");
-//   sendLogToPopup(`🖼️  PROCESSING IMAGE ${imageNumber}/${totalImages}`, "success");
-//   sendLogToPopup(`${"=".repeat(50)}`, "info");
-//   sendStatusToPopup(`Processing image ${imageNumber}/${totalImages}...`);
-
-//   try {
-//     const { images, prompts, sceneImage, styleImage } = await getStorageDataSafely(currentImageIndex);
-
-//     const currentImage = images[currentImageIndex];
-//     const tabId = whiskTab;
-
-//     // Generate unique key for this batch task
-//     const key = generateKey();
-//     const taskKey = `task_${key}`;
-
-//     sendLogToPopup(`\n� Processing batch of ${promptCounts} prompt(s)...`, "info");
-
-//     // Set up task tracking for batch
-//     await chrome.storage.session.set({
-//       [taskKey]: {
-//         tabId,
-//         imageIndex: currentImageIndex,
-//         totalPrompts: promptCounts,
-//         status: "pending",
-//         createdAt: Date.now()
-//       }
-//     });
-
-//     // Send all prompts at once to content script for batch processing
-//     chrome.tabs.sendMessage(tabId, {
-//       action: "GENERATE_IMAGE_BATCH",
-//       data: {
-//         image: currentImage,
-//         sceneImage: sceneImage || null,  // Optional scene image
-//         styleImage: styleImage || null,  // Optional style image
-//         prompts: prompts,  // Send entire prompts array
-//         imageIndex: currentImageIndex,
-//         imageName: currentImage.name,
-//         key: key
-//       },
-//     });
-
-//     // Wait for batch completion
-//     const result = await waitForTask(key);
-
-//     if (!result.success) {
-//       sendLogToPopup(`❌ Batch processing failed: ${result.error}`, "error");
-//     } else {
-//       sendLogToPopup(`✅ Batch complete! Processed ${promptCounts} variation(s)`, "success");
-//     }
-
-//     await clearSessionTasks();
-
-//     currentImageIndex++;
-//     await saveProgress();
-//     imageDownloadSet.clear();
-
-//     if (currentImageIndex < totalImages -1) {
-//       sendLogToPopup(`⏳ Preparing for next image...`, "info");
-//       await sleep(3000);
-//       await processNextImage();
-//     } else {
-//       await processNextImage(); // Trigger completion check
-//     }
-
-//   } catch (error) {
-//     sendLogToPopup(`❌ Error processing image ${imageNumber}: ${error.message}`, "error");
-//     sendErrorToPopup(error.message);
-//     stopGeneration();
-//   }
-// }
 
 async function processNextImage() {
   while (true) {
@@ -428,19 +348,19 @@ function sleep(ms) {
 function sendLogToPopup(text, type = "info") {
   chrome.runtime
     .sendMessage({ action: "LOG", text: text, type: type })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 function sendStatusToPopup(text) {
-  chrome.runtime.sendMessage({ action: "STATUS", text: text }).catch(() => {});
+  chrome.runtime.sendMessage({ action: "STATUS", text: text }).catch(() => { });
 }
 
 function sendErrorToPopup(text) {
-  chrome.runtime.sendMessage({ action: "ERROR", text: text }).catch(() => {});
+  chrome.runtime.sendMessage({ action: "ERROR", text: text }).catch(() => { });
 }
 
 function sendMessageToPopup(message) {
-  chrome.runtime.sendMessage(message).catch(() => {});
+  chrome.runtime.sendMessage(message).catch(() => { });
 }
 
 async function handleTaskComplete(data) {

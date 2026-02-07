@@ -98,18 +98,30 @@ async function checkResumeState() {
     // Clear progress completely (safety)
     await chrome.storage.local.remove("progress");
 
-    // Reset image selection state
-    selectedImages = [];
+    // Don't wipe images automatically on fresh start if they exist in DB
+    // Check if we have images in DB
+    try {
+      const storedImages = await db.getImages();
+      if (storedImages && storedImages.length > 0) {
+        // Let's just update the UI to show they are loaded
+        imageCount.textContent = `✓ ${storedImages.length} image(s) loaded from storage`;
+        imageCount.style.background = "#d4edda";
+        imageCount.style.color = "#155724";
+        selectedImages = storedImages; // These are base64 objects now, not File objects.
 
-    // Persist reset selection (IMPORTANT if popup reloads)
-    await chrome.storage.local.set({ images: [] });
-
-    await updateSelectedImageUI();
+        logToConsole(`Restored ${storedImages.length} images from storage`, "info");
+      } else {
+        selectedImages = [];
+        await updateSelectedImageUI();
+        statusDiv.textContent = " No images selected";
+      }
+    } catch (e) {
+      console.error("Error checking DB:", e);
+      selectedImages = [];
+      statusDiv.textContent = " No images selected";
+    }
 
     validateInputs();
-
-    // UI reset
-    statusDiv.textContent = "� No images selected";
   }
 }
 
@@ -121,7 +133,7 @@ resumeBtn.addEventListener("click", async () => {
   statusDiv.classList.add("active");
 
   const { prompts } = await chrome.storage.local.get("prompts");
-  const { images } = await chrome.storage.local.get("images");
+  const images = await db.getImages();
 
   chrome.runtime.sendMessage({
     action: "START_GENERATION",
@@ -135,7 +147,6 @@ resumeBtn.addEventListener("click", async () => {
 
 restartBtn.addEventListener("click", async () => {
   await chrome.storage.local.remove("progress");
-
   await checkResumeState();
 });
 
@@ -189,7 +200,6 @@ function initExistingPrompts() {
 }
 
 // ---------- add new prompt ----------
-// ---------- add new prompt ----------
 function addPrompt(initialValue = "") {
   const wrapper = document.createElement("div");
   wrapper.className = "prompt-group";
@@ -212,8 +222,6 @@ function addPrompt(initialValue = "") {
   promptsContainer.appendChild(wrapper);
   validateInputs();
 }
-
-// ... existing code ...
 
 function useTemplate(template) {
   // Clear main prompts
@@ -272,7 +280,11 @@ async function handleImageSelection(event) {
   const files = Array.from(event.target.files);
 
   // Filter for image files only
-  selectedImages = files.filter((file) => file.type.startsWith("image/"));
+  const newFiles = files.filter((file) => file.type.startsWith("image/"));
+
+  if (newFiles.length === 0) return;
+
+  selectedImages = newFiles; // temporarily hold files
 
   await updateSelectedImageUI(true);
 
@@ -286,15 +298,27 @@ async function updateSelectedImageUI(error = false) {
     imageCount.style.color = "#155724";
 
     // Convert files to base64 for storage
-    const imagesData = await Promise.all(
-      selectedImages.map((file) => fileToBase64(file)),
-    );
+    // If selectedImages contains File objects, convert. If already base64 (from restore), skip.
+    let imagesData = selectedImages;
 
-    // Store in chrome.storage
-    chrome.storage.local.set({ images: imagesData });
+    if (selectedImages[0] instanceof File) {
+      imagesData = await Promise.all(
+        selectedImages.map((file) => fileToBase64(file)),
+      );
+    }
 
-    logToConsole(`Loaded ${selectedImages.length} images`, "success");
-    showToast("success", "Images Loaded", `Successfully loaded ${selectedImages.length} image(s)`);
+    // Store in IndexedDB
+    try {
+      await db.saveImages(imagesData);
+      // Update selectedImages to be the data objects so we are consistent
+      selectedImages = imagesData;
+
+      logToConsole(`Loaded ${selectedImages.length} images`, "success");
+      showToast("success", "Images Loaded", `Successfully loaded ${selectedImages.length} image(s)`);
+    } catch (e) {
+      logToConsole("Error saving images: " + e.message, "error");
+      showToast("error", "Storage Error", "Failed to save images. " + e.message);
+    }
   } else {
     imageCount.textContent = error ? "✗ No valid images found" : "📷 No images selected";
     imageCount.style.background = "";
@@ -314,13 +338,12 @@ async function handleSceneImageSelection(event) {
     sceneImage = file;
     const sceneData = await fileToBase64(file);
 
-    // Store in chrome.storage
+    // Store in IndexedDB
     try {
-      await chrome.storage.local.set({ sceneImage: sceneData });
+      await db.saveSceneImage(sceneData);
     } catch (error) {
-      // console.error("Error storing scene image:", error);
       logToConsole("Error storing scene image: " + error.message, "error");
-      showToast("error", "Scene Image Error", "Error storing scene image, please upload image under 1MB");
+      showToast("error", "Scene Image Error", "Error storing scene image");
       return;
     }
 
@@ -344,8 +367,14 @@ async function handleStyleImageSelection(event) {
     styleImage = file;
     const styleData = await fileToBase64(file);
 
-    // Store in chrome.storage
-    await chrome.storage.local.set({ styleImage: styleData });
+    // Store in IndexedDB
+    try {
+      await db.saveStyleImage(styleData);
+    } catch (error) {
+      logToConsole("Error storing style image: " + error.message, "error");
+      showToast("error", "Style Image Error", "Error storing style image");
+      return;
+    }
 
     styleImageStatus.textContent = `✓ ${file.name}`;
     styleImageStatus.style.background = "#d4edda";
@@ -363,7 +392,7 @@ async function handleStyleImageSelection(event) {
 async function clearSceneImage() {
   sceneImage = null;
   sceneInput.value = "";
-  await chrome.storage.local.remove("sceneImage");
+  await db.saveSceneImage(null); // Or add a delete method, but setting to null is fine if logic handles it
 
   sceneImageStatus.textContent = "No scene image selected";
   sceneImageStatus.style.background = "";
@@ -378,7 +407,7 @@ async function clearSceneImage() {
 async function clearStyleImage() {
   styleImage = null;
   styleInput.value = "";
-  await chrome.storage.local.remove("styleImage");
+  await db.saveStyleImage(null);
 
   styleImageStatus.textContent = "No style image selected";
   styleImageStatus.style.background = "";
@@ -406,7 +435,7 @@ function fileToBase64(file) {
 
 // Validate Inputs
 function validateInputs() {
-  const hasImages = selectedImages.length > 0;
+  const hasImages = selectedImages && selectedImages.length > 0;
   syncPromptInputs();
   const hasPrompts =
     promptInputs.every((input) => input.value.trim() !== "") &&
@@ -424,11 +453,7 @@ async function startGeneration() {
   if (isRunning) return;
 
   if (!sceneImage) {
-    await clearSceneImage();
-  }
-
-  if (!styleImage) {
-    await clearStyleImage();
+    // Check if we need to clear (already handled by clearSceneImage if clicked)
   }
 
   isRunning = true;
@@ -446,11 +471,11 @@ async function startGeneration() {
   // Get prompts
   const prompts = promptInputs.map((input) => input.value.trim());
 
-  // Store prompts in chrome.storage
+  // Store prompts in chrome.storage (prompts are small, local storage is fine)
   await chrome.storage.local.set({ prompts });
 
   logToConsole(`📝 Loaded ${prompts.length} prompts`, "info");
-  logToConsole(`� Processing ${selectedImages.length} images`, "info");
+  logToConsole(` Processing ${selectedImages.length} images`, "info");
 
   // Send message to background script to start
   chrome.runtime.sendMessage({
@@ -711,9 +736,6 @@ async function deleteTemplate(id) {
   }
 }
 
-
-
-
 // --- Event Listeners ---
 managePromptsBtn.addEventListener("click", openManageModalFunc);
 closeManageModal.addEventListener("click", closeManageModalFunc);
@@ -727,28 +749,3 @@ closeEditModal.addEventListener("click", closeEditModalFunc);
 cancelEditBtn.addEventListener("click", closeEditModalFunc);
 addTemplatePromptBtn.addEventListener("click", () => addTemplatePromptInput());
 saveTemplateBtn.addEventListener("click", saveTemplate);
-
-
-// // Load saved prompts from storage on page load
-// chrome.storage.local.get(['savedPrompts'], (result) => {
-//   if (result.savedPrompts && result.savedPrompts.length === 5) {
-//     result.savedPrompts.forEach((prompt, index) => {
-//       if (prompt) {
-//         promptInputs[index].value = prompt;
-//       }
-//     });
-//     validateInputs();
-//     logToConsole('✓ Loaded saved prompts', 'info');
-//   } else {
-//     // Validate default prompts
-//     validateInputs();
-//   }
-// });
-
-// // Save prompts to storage when they change
-// promptInputs.forEach((input, index) => {
-//   input.addEventListener('blur', () => {
-//     const prompts = promptInputs.map(inp => inp.value.trim());
-//     chrome.storage.local.set({ savedPrompts: prompts });
-//   });
-// });
