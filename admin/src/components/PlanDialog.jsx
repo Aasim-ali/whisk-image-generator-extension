@@ -32,6 +32,8 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                 currency: plan.currency || 'INR',
                 credits: plan.credits || '',
                 features: plan.features || [],
+                maxDevices: plan.maxDevices || 1,
+                dailyLimit: plan.dailyLimit || 100,
             });
         } else {
             setFormData({
@@ -40,6 +42,8 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                 currency: 'INR',
                 credits: '',
                 features: [],
+                maxDevices: 1,
+                dailyLimit: 100,
             });
         }
         setErrors({});
@@ -66,6 +70,8 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                 ...formData,
                 price: Math.round(parseFloat(formData.price) * 100), // Convert to paise
                 credits: parseInt(formData.credits, 10),
+                maxDevices: parseInt(formData.maxDevices, 10),
+                dailyLimit: parseInt(formData.dailyLimit, 10),
             };
             onSave(planData);
         }
@@ -143,6 +149,24 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                         fullWidth
                         required
                     />
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <TextField
+                            label="Max Devices"
+                            type="number"
+                            value={formData.maxDevices}
+                            onChange={(e) => setFormData({ ...formData, maxDevices: e.target.value })}
+                            fullWidth
+                            InputProps={{ inputProps: { min: 1 } }}
+                        />
+                        <TextField
+                            label="Daily Limit"
+                            type="number"
+                            value={formData.dailyLimit}
+                            onChange={(e) => setFormData({ ...formData, dailyLimit: e.target.value })}
+                            fullWidth
+                            InputProps={{ inputProps: { min: 1 } }}
+                        />
+                    </Box>
 
                     <Box>
                         <Typography variant="subtitle2" gutterBottom>

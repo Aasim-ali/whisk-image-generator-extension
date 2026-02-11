@@ -1,4 +1,5 @@
 importScripts('db.js');
+importScripts('libs/socket.io.min.js');
 
 // Background Service Worker - Tab Management & Coordination
 
@@ -9,6 +10,53 @@ let totalImages = 0;
 let promptCounts = 0;
 const imageDownloadSet = new Set();
 // ... existing listeners ...
+
+let socket = null;
+let dailyLimitReached = false;
+
+// Initialize Socket from background
+async function initSocket() {
+  const result = await chrome.storage.local.get(["authToken", "deviceId"]);
+  if (result.authToken && result.deviceId) {
+    connectBgSocket(result.authToken, result.deviceId);
+  }
+}
+
+function connectBgSocket(token, deviceId) {
+  if (socket && socket.connected) return;
+
+  const API_URL = "http://localhost:5000";
+
+  socket = io(API_URL, {
+    auth: { token, deviceId },
+    transports: ['websocket', 'polling']
+  });
+
+  socket.on("connect", () => {
+    console.log("Background: Connected to Socket.io");
+  });
+
+  socket.on("limit_reached", (data) => {
+    dailyLimitReached = true;
+    console.log("Background: Limit Reached");
+    sendLogToPopup("⚠️ Daily limit reached. Stopping...", "error");
+    stopGeneration();
+  });
+
+  socket.on("update_usage", (data) => {
+    // optional: sync logs
+  });
+}
+
+// Watch for token changes (login)
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === "local" && (changes.authToken || changes.deviceId)) {
+    initSocket();
+  }
+});
+
+// Init on load
+initSocket();
 
 // ... (keep existing listeners and helper functions like startGeneration, waitForTabsReady, openWhiskTab, closeTabs, generateKey) ...
 
@@ -40,6 +88,10 @@ async function getStorageDataSafely(index, maxRetries = 5) {
 }
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "START_GENERATION") {
+    if (dailyLimitReached) {
+      sendLogToPopup("❌ Daily limit reached. Cannot start.", "error");
+      return;
+    }
     startGeneration(message.data, message.resume === true);
   }
 
@@ -127,6 +179,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Start Generation Process
 async function startGeneration(data, resume = false) {
   if (isRunning) return;
+  if (dailyLimitReached) {
+    sendLogToPopup("❌ Daily limit reached.", "error");
+    return;
+  }
 
   const saved = resume ? await loadProgress() : null;
 
@@ -222,6 +278,12 @@ async function processNextImage() {
       return;
     }
 
+    if (dailyLimitReached) {
+      sendLogToPopup("🛑 Stopping due to daily limit.", "error");
+      stopGeneration();
+      return;
+    }
+
     await closeTabs();
     await openWhiskTab();
 
@@ -286,6 +348,12 @@ async function processNextImage() {
           `✅ Batch complete! (${promptCounts} variations)`,
           "success",
         );
+        // ✨ REPORT USAGE ✨
+        if (socket && socket.connected) {
+          socket.emit("task_complete", { count: 1 });
+          // Wait slightly for limit check?
+          await sleep(500);
+        }
       }
 
       await clearSessionTasks();

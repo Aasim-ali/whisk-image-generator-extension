@@ -33,7 +33,7 @@ router.get('/getPlanById', protect, authorize('admin'), async (req, res) => {
 // Create a new plan
 router.post('/', protect, authorize('admin'), async (req, res) => {
     try {
-        const { name, price, currency, credits, features } = req.body;
+        const { name, price, currency, credits, features, maxDevices, dailyLimit } = req.body;
 
         // Validation
         if (!name || !price || !credits) {
@@ -54,6 +54,8 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
             currency: currency || 'INR',
             credits,
             features: features || [],
+            maxDevices: maxDevices || 1,
+            dailyLimit: dailyLimit || 100
         });
 
         res.status(201).json({ message: 'Plan created successfully', plan });
@@ -66,7 +68,7 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
 // Update a plan
 router.put('/:id', protect, authorize('admin'), async (req, res) => {
     try {
-        const { name, price, currency, credits, features } = req.body;
+        const { name, price, currency, credits, features, maxDevices, dailyLimit } = req.body;
         const plan = await Plan.findByPk(req.params.id);
 
         if (!plan) {
@@ -88,6 +90,8 @@ router.put('/:id', protect, authorize('admin'), async (req, res) => {
         if (currency !== undefined) plan.currency = currency;
         if (credits !== undefined) plan.credits = credits;
         if (features !== undefined) plan.features = features;
+        if (maxDevices !== undefined) plan.maxDevices = maxDevices;
+        if (dailyLimit !== undefined) plan.dailyLimit = dailyLimit;
 
         await plan.save();
 

@@ -27,6 +27,14 @@ const Plan = sequelize.define('Plan', {
         type: DataTypes.JSON,
         defaultValue: [],
     },
+    maxDevices: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+    },
+    dailyLimit: {
+        type: DataTypes.INTEGER,
+        defaultValue: 100,
+    },
 });
 
 export default Plan;

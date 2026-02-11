@@ -119,6 +119,7 @@ export default function Plans() {
                                 <TableCell><strong>Name</strong></TableCell>
                                 <TableCell><strong>Price</strong></TableCell>
                                 <TableCell><strong>Credits</strong></TableCell>
+                                <TableCell><strong>Limits</strong></TableCell>
                                 <TableCell><strong>Features</strong></TableCell>
                                 <TableCell align="right"><strong>Actions</strong></TableCell>
                             </TableRow>
@@ -126,13 +127,13 @@ export default function Plans() {
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                                         <CircularProgress size={40} />
                                     </TableCell>
                                 </TableRow>
                             ) : plans.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center">
+                                    <TableCell colSpan={6} align="center">
                                         <Typography variant="body2" color="text.secondary">
                                             No plans found. Create your first plan to get started.
                                         </Typography>
@@ -146,6 +147,12 @@ export default function Plans() {
                                             {plan.currency} {(plan.price / 100).toFixed(2)}
                                         </TableCell>
                                         <TableCell>{plan.credits}</TableCell>
+                                        <TableCell>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                <Typography variant="caption">Devices: {plan.maxDevices || 1}</Typography>
+                                                <Typography variant="caption">Daily: {plan.dailyLimit || 100}</Typography>
+                                            </Box>
+                                        </TableCell>
                                         <TableCell>
                                             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                                                 {plan.features && plan.features.length > 0 ? (

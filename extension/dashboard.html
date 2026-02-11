@@ -202,9 +202,61 @@ Ultra-realistic luxury jewellery photography of this ring worn on a female model
     </div>
   </div>
 
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><span class="icon">🔐</span> Login Required</h2>
+      </div>
+      <div class="modal-body">
+        <p>Please login to access the Whisk Image Generator.</p>
+        <div class="form-group">
+          <label for="loginEmail">Email:</label>
+          <input type="email" id="loginEmail" class="text-input" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password:</label>
+          <input type="password" id="loginPassword" class="text-input" placeholder="Enter your password">
+        </div>
+        <div id="loginError" class="error-text" style="color: red; margin-top: 10px; display: none;"></div>
+        <div style="margin-top: 15px; text-align: center; font-size: 0.9em;">
+          Don't have an account? <a href="#" id="signupLink" style="color: #4CAF50; text-decoration: none;">Sign Up</a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="loginBtn" class="btn btn-primary">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limit Reached Modal -->
+  <div id="limitModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><span class="icon">⚠️</span> Limit Reached</h2>
+      </div>
+      <div class="modal-body">
+        <p>You have reached your daily image generation limit.</p>
+        <p>Upgrade to a premium plan to continue generating unlimited images.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="upgradeBtn" class="btn btn-primary"
+          style="background: linear-gradient(45deg, #FFD700, #FFA500); color: black; font-weight: bold;">🚀 Upgrade
+          Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Usage Display (In Header) -->
+  <div id="usageDisplay"
+    style="position: fixed; top: 10px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em; z-index: 1000; display: none;">
+    Daily Limit: <span id="usageCount">Loading...</span>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
+  <script src="libs/socket.io.min.js"></script>
   <script src="db.js"></script>
   <script src="dashboard.js"></script>
 </body>

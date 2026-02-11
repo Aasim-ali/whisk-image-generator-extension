@@ -31,6 +31,14 @@ const User = sequelize.define('User', {
         type: DataTypes.UUID,
         allowNull: true,
     },
+    dailyUsage: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+    },
+    lastUsageDate: {
+        type: DataTypes.DATEONLY,
+        allowNull: true,
+    },
 });
 
 export default User;

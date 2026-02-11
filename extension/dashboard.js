@@ -747,5 +747,201 @@ window.addEventListener("click", (e) => {
 openAddTemplateBtn.addEventListener("click", () => openEditModalFunc());
 closeEditModal.addEventListener("click", closeEditModalFunc);
 cancelEditBtn.addEventListener("click", closeEditModalFunc);
-addTemplatePromptBtn.addEventListener("click", () => addTemplatePromptInput());
-saveTemplateBtn.addEventListener("click", saveTemplate);
+// ----------------------------------------------------------------------------
+// AUTHENTICATION & SOCKET.IO
+// ----------------------------------------------------------------------------
+
+const loginModal = document.getElementById("loginModal");
+const loginEmailInput = document.getElementById("loginEmail");
+const loginPasswordInput = document.getElementById("loginPassword");
+const loginBtn = document.getElementById("loginBtn");
+const loginError = document.getElementById("loginError");
+const usageDisplay = document.getElementById("usageDisplay");
+const usageCountSpan = document.getElementById("usageCount");
+
+const signupLink = document.getElementById("signupLink");
+const limitModal = document.getElementById("limitModal");
+const upgradeBtn = document.getElementById("upgradeBtn");
+
+// Redirect URL
+const WEBSITE_URL = "https://whisk-image-generator-extension.vercel.app/";
+
+if (signupLink) {
+  signupLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: WEBSITE_URL });
+  });
+}
+
+if (upgradeBtn) {
+  upgradeBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: WEBSITE_URL });
+    limitModal.style.display = "none";
+  });
+}
+
+let socket = null;
+let authToken = null;
+let dailyLimitMax = 5;
+let dailyUsageCurrent = 0;
+
+async function initAuth() {
+  const result = await chrome.storage.local.get(["authToken", "userEmail"]);
+  if (result.authToken) {
+    authToken = result.authToken;
+    connectSocket();
+  } else {
+    showLoginModal();
+  }
+}
+
+function showLoginModal() {
+  loginModal.style.display = "flex";
+}
+
+function hideLoginModal() {
+  loginModal.style.display = "none";
+}
+
+async function handleLogin() {
+  const email = loginEmailInput.value.trim();
+  const password = loginPasswordInput.value.trim();
+
+  if (!email || !password) {
+    loginError.textContent = "Please enter email and password";
+    loginError.style.display = "block";
+    return;
+  }
+
+  try {
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Logging in...";
+
+    // Replace with your actual server URL
+    const API_URL = "http://localhost:5000";
+
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Login failed");
+    }
+
+    // Success
+    authToken = data.token;
+    await chrome.storage.local.set({ authToken, userEmail: data.user.email });
+
+    hideLoginModal();
+    logToConsole(`✓ Logged in as ${data.user.email}`, "success");
+    showToast("success", "Login Successful", `Welcome back, ${data.user.name}`);
+
+    connectSocket();
+
+  } catch (error) {
+    loginError.textContent = error.message;
+    loginError.style.display = "block";
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Login";
+  }
+}
+
+loginBtn.addEventListener("click", handleLogin);
+
+// Socket.io Connection
+async function connectSocket() {
+  if (socket && socket.connected) return;
+
+  const API_URL = "http://localhost:5000";
+
+  // Get Device ID
+  let { deviceId } = await chrome.storage.local.get("deviceId");
+  if (!deviceId) {
+    deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    await chrome.storage.local.set({ deviceId });
+  }
+
+  socket = io(API_URL, {
+    auth: {
+      token: authToken,
+      deviceId: deviceId
+    },
+    transports: ['websocket', 'polling'] // force websocket first if possible
+  });
+
+  socket.on("connect", () => {
+    logToConsole("✓ Connected to server via Socket.io", "success");
+    usageDisplay.style.display = "block";
+  });
+
+  socket.on("connect_error", (err) => {
+    logToConsole(`✗ Connection Error: ${err.message}`, "error");
+    if (err.message.includes("Authentication")) {
+      // Token invalid?
+      chrome.storage.local.remove(["authToken"]);
+      socket.disconnect();
+      showLoginModal();
+    } else if (err.message.includes("Device limit")) {
+      showToast("error", "Device Limit", err.message);
+      alert(err.message);
+    }
+  });
+
+  socket.on("init_state", (data) => {
+    updateUsageUI(data.dailyUsage, data.dailyLimit);
+    logToConsole(`Plan: ${data.planName} (Daily Limit: ${data.dailyLimit})`, "info");
+  });
+
+  socket.on("update_usage", (data) => {
+    updateUsageUI(data.dailyUsage, data.dailyLimit);
+  });
+
+  socket.on("limit_reached", (data) => {
+    // showToast("error", "Limit Reached", data.message);
+    if (limitModal) {
+      limitModal.style.display = "flex";
+    }
+    logToConsole(`✗ ${data.message}`, "error");
+    startBtn.disabled = true;
+    startBtn.title = "Daily limit reached";
+  });
+
+  // Forward socket to background? 
+  // Actually dashboard.js is the main controller here. 
+  // Background.js runs the loop.
+  // We need to pass the socket instance or handle events here to notify background.
+  // OR background.js should also connect?
+  // Ideally, Sidebar (Dashboard) maintains the socket.
+}
+
+function updateUsageUI(usage, limit) {
+  dailyUsageCurrent = usage;
+  dailyLimitMax = limit;
+  usageCountSpan.textContent = `${usage} / ${limit}`;
+
+  if (usage >= limit) {
+    usageCountSpan.style.color = "red";
+    startBtn.disabled = true;
+  } else {
+    usageCountSpan.style.color = "lightgreen";
+    // Only enable if other validation passes
+    validateInputs();
+  }
+}
+
+// Override validateInputs to check limit
+const originalValidateInputs = validateInputs;
+validateInputs = function () {
+  originalValidateInputs();
+  if (dailyUsageCurrent >= dailyLimitMax) {
+    startBtn.disabled = true;
+  }
+}
+
+// Call init
+initAuth();
