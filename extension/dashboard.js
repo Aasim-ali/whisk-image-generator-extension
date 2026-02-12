@@ -846,7 +846,7 @@ async function handleLogin() {
     loginBtn.textContent = "Logging in...";
 
     // Replace with your actual server URL
-    const API_URL = "http://localhost:5000";
+    const API_URL = "https://whisk-api.duckdns.org";
 
     const response = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",

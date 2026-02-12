@@ -17,7 +17,7 @@ export const usePlans = () => {
     const fetchPlans = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:5000/api/plans/getPlanList');
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plans/getPlanList`);
             setPlans(res.data);
         } catch (err) {
             setError(err.message);
@@ -36,10 +36,10 @@ export const usePlans = () => {
         setLoading(true);
         try {
             // 0. Get Razorpay Key
-            const { data: { key } } = await axios.get('http://localhost:5000/api/payment/key');
+            const { data: { key } } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/payment/key`);
 
             // 1. Create Order
-            const orderRes = await axios.post('http://localhost:5000/api/payment/order', {
+            const orderRes = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payment/order`, {
                 planId: plan.id,
                 userId: user.id,
             });
@@ -57,7 +57,7 @@ export const usePlans = () => {
                 handler: async function (response) {
                     // 3. Verify Payment
                     try {
-                        const verifyRes = await axios.post('http://localhost:5000/api/payment/verify', {
+                        const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payment/verify`, {
                             razorpayOrderId: response.razorpay_order_id,
                             razorpayPaymentId: response.razorpay_payment_id,
                             razorpaySignature: response.razorpay_signature,

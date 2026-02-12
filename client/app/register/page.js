@@ -96,7 +96,7 @@ export default function Register() {
                 </div>
 
                 <a
-                    href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/oauth/google`}
+                    href={`${process.env.NEXT_PUBLIC_API_URL}/oauth/google`}
                     className="w-full btn bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 flex items-center justify-center gap-3 py-3 mb-6 transition-all shadow-lg hover:shadow-xl"
                 >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
