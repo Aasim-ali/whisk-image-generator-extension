@@ -1,26 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
 
 export default function ScrollToTop() {
+    const { scrollY, scrollYProgress } = useScroll();
     const [isVisible, setIsVisible] = useState(false);
-    const [scrollProgress, setScrollProgress] = useState(0);
+    const [progress, setProgress] = useState(0);
 
-    useEffect(() => {
-        const toggleVisibility = () => {
-            const scrolled = window.scrollY;
-            const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = (scrolled / windowHeight) * 100;
+    // Update visibility and progress
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        setIsVisible(latest > 300);
+    });
 
-            setScrollProgress(progress);
-            setIsVisible(scrolled > 300);
-        };
-
-        window.addEventListener('scroll', toggleVisibility);
-        return () => window.removeEventListener('scroll', toggleVisibility);
-    }, []);
+    useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        setProgress(latest * 100);
+    });
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -37,31 +32,32 @@ export default function ScrollToTop() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: 20 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-8 right-8 z-40 w-14 h-14 rounded-full glass border-2 border-primary/30 flex items-center justify-center text-white hover:scale-110 transition-transform group"
+                    className="fixed bottom-8 right-8 z-50 w-12 h-12 md:w-14 md:h-14 rounded-full glass border-2 border-primary/30 flex items-center justify-center text-white shadow-lg shadow-primary/20 backdrop-blur-md"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
+                    aria-label="Scroll to top"
                 >
                     {/* Circular progress */}
-                    <svg className="absolute inset-0 w-full h-full -rotate-90">
+                    <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none p-1">
                         <circle
-                            cx="28"
-                            cy="28"
-                            r="26"
-                            stroke="rgba(138, 43, 226, 0.2)"
-                            strokeWidth="2"
+                            cx="50%"
+                            cy="50%"
+                            r="20"
+                            stroke="rgba(255, 255, 255, 0.1)"
+                            strokeWidth="3"
                             fill="none"
                         />
                         <circle
-                            cx="28"
-                            cy="28"
-                            r="26"
+                            cx="50%"
+                            cy="50%"
+                            r="20"
                             stroke="url(#gradient)"
-                            strokeWidth="2"
+                            strokeWidth="3"
                             fill="none"
-                            strokeDasharray={163.36}
-                            strokeDashoffset={163.36 - (163.36 * scrollProgress) / 100}
+                            strokeDasharray={125.6} // 2 * PI * 20
+                            strokeDashoffset={125.6 - (125.6 * progress) / 100}
                             strokeLinecap="round"
-                            className="transition-all duration-300"
+                            className="transition-all duration-100 ease-out"
                         />
                         <defs>
                             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -72,9 +68,9 @@ export default function ScrollToTop() {
                     </svg>
 
                     {/* Arrow icon */}
-                    <div className="relative z-10">
+                    <div className="relative z-10 text-white">
                         <svg
-                            className="w-6 h-6"
+                            className="w-5 h-5 md:w-6 md:h-6"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -82,7 +78,7 @@ export default function ScrollToTop() {
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                strokeWidth={2}
+                                strokeWidth={2.5}
                                 d="M5 10l7-7m0 0l7 7m-7-7v18"
                             />
                         </svg>
