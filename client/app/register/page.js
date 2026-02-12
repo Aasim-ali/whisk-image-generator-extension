@@ -22,9 +22,13 @@ export default function Register() {
 
         if (token && userStr) {
             if (isExtension) {
-                const user = JSON.parse(userStr);
-                const redirectUrl = `/extension-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
-                router.push(redirectUrl);
+                try {
+                    const user = JSON.parse(userStr);
+                    const redirectUrl = `/extension-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
+                    window.location.href = redirectUrl;
+                } catch (e) {
+                    console.error("Error parsing user data", e);
+                }
             } else {
                 router.push('/');
             }

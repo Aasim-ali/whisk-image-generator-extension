@@ -24,12 +24,18 @@ export default function Login() {
         const userStr = localStorage.getItem('user');
 
         if (token && userStr) {
+            console.log("User already logged in");
             // Validate token expiry if possible, or just trust existence for now
             if (isExtension) {
-                // Redirect back to extension callback
-                const user = JSON.parse(userStr);
-                const redirectUrl = `/extension-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
-                router.push(redirectUrl);
+                // Redirect back to extension callback (Valid JSON parse required)
+                try {
+                    const user = JSON.parse(userStr);
+                    const redirectUrl = `/extension-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
+                    // Use window.location.href to force full reload so content script runs
+                    window.location.href = redirectUrl;
+                } catch (e) {
+                    console.error("Error parsing user data for redirect", e);
+                }
             } else {
                 router.push('/');
             }
