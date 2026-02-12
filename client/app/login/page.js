@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Loader } from 'lucide-react';
@@ -15,6 +15,8 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isExtension = searchParams.get('extension') === 'true';
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -162,7 +164,7 @@ export default function Login() {
 
                     {/* Google Sign In */}
                     <motion.a
-                        href={`${process.env.NEXT_PUBLIC_API_URL}/oauth/google`}
+                        href={`${process.env.NEXT_PUBLIC_API_URL}/api/oauth/google${isExtension ? '?extension=true' : ''}`}
                         className="w-full btn bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 flex items-center justify-center gap-3 py-3 mb-8 transition-all shadow-lg hover:shadow-xl"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
