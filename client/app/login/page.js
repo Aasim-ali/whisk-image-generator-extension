@@ -1,13 +1,14 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Loader } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { fadeInUp } from '../../utils/animations';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function Login() {
+function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -226,5 +227,13 @@ export default function Login() {
                 </div>
             </motion.div>
         </div>
+    );
+}
+
+export default function Login() {
+    return (
+        <Suspense fallback={<LoadingSpinner />}>
+            <LoginForm />
+        </Suspense>
     );
 }

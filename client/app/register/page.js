@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function Register() {
+function RegisterForm() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -149,5 +150,13 @@ export default function Register() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function Register() {
+    return (
+        <Suspense fallback={<LoadingSpinner />}>
+            <RegisterForm />
+        </Suspense>
     );
 }
