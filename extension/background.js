@@ -72,6 +72,42 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
+// Fallback: Capture token directly in background if content script fails
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url && tab.url.includes('/extension-callback')) {
+    try {
+      const url = new URL(tab.url);
+      const token = url.searchParams.get('token');
+      const userStr = url.searchParams.get('user');
+
+      if (token) {
+        const data = { authToken: token };
+        if (userStr && userStr !== "undefined" && userStr !== "null") {
+          try {
+            data.user = JSON.parse(decodeURIComponent(userStr));
+          } catch (e) {
+            console.log("Error parsing user in background:", e);
+          }
+        }
+
+        chrome.storage.local.set(data, () => {
+          console.log("Background: Token captured from URL and saved.");
+          // Visual feedback
+          chrome.action.setBadgeText({ text: "ON" });
+          chrome.action.setBadgeBackgroundColor({ color: "#4CAF50" });
+
+          // Optional: Close the tab after a delay to improve UX
+          setTimeout(() => {
+            chrome.tabs.remove(tabId).catch(() => { });
+          }, 3000);
+        });
+      }
+    } catch (e) {
+      console.error("Error processing callback URL in background:", e);
+    }
+  }
+});
+
 // Init on load
 initSocket();
 

@@ -18,6 +18,24 @@ export default function Login() {
     const searchParams = useSearchParams();
     const isExtension = searchParams.get('extension') === 'true';
 
+    // Auto-redirect if already logged in
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+
+        if (token && userStr) {
+            // Validate token expiry if possible, or just trust existence for now
+            if (isExtension) {
+                // Redirect back to extension callback
+                const user = JSON.parse(userStr);
+                const redirectUrl = `/extension-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
+                router.push(redirectUrl);
+            } else {
+                router.push('/');
+            }
+        }
+    }, [isExtension, router]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');

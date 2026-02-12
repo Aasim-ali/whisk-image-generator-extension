@@ -13,9 +13,13 @@ if (window.location.href.includes('/extension-callback')) {
     const data = { authToken: token };
     if (userStr) {
       try {
-        data.user = JSON.parse(decodeURIComponent(userStr));
+        const decodedUser = decodeURIComponent(userStr);
+        // Handle case where userStr might be "undefined" string
+        if (decodedUser !== "undefined" && decodedUser !== "null") {
+          data.user = JSON.parse(decodedUser);
+        }
       } catch (e) {
-        console.error('Error parsing user data:', e);
+        console.error('Whisk Extension: Error parsing user data:', e, userStr);
       }
     }
 

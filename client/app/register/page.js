@@ -15,6 +15,22 @@ export default function Register() {
     const searchParams = useSearchParams();
     const isExtension = searchParams.get('extension') === 'true';
 
+    // Auto-redirect if already logged in
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+
+        if (token && userStr) {
+            if (isExtension) {
+                const user = JSON.parse(userStr);
+                const redirectUrl = `/extension-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
+                router.push(redirectUrl);
+            } else {
+                router.push('/');
+            }
+        }
+    }, [isExtension, router]);
+
     const handleRegister = async (e) => {
         e.preventDefault();
         setError('');
