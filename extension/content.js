@@ -1,3 +1,38 @@
+// Whisk Content Script
+// Handles interaction with Google Labs and captures authentication tokens
+
+// Check for authentication token in URL (Extension Callback)
+if (window.location.href.includes('/extension-callback')) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const userStr = urlParams.get('user');
+
+  if (token) {
+    console.log('Whisk Extension: Token detected');
+
+    const data = { authToken: token };
+    if (userStr) {
+      try {
+        data.user = JSON.parse(decodeURIComponent(userStr));
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+    }
+
+    chrome.storage.local.set(data, () => {
+      console.log('Whisk Extension: Token saved to storage');
+      // Notify background script maybe? Or just close tab?
+      // chrome.runtime.sendMessage({ action: 'AUTH_SUCCESS' });
+
+      // Optional: Close this tab after a short delay
+      setTimeout(() => {
+        // We can't always close tabs we didn't open script-wise, but often we can if opened by extension
+        // chrome.runtime.sendMessage({ action: 'CLOSE_TAB' });
+      }, 2000);
+    });
+  }
+}
+
 // Content Script - Automation Provider Architecture
 
 console.log("🤖 Whisk Bot Content Script Loaded (New Architecture)");
@@ -229,11 +264,11 @@ class WhiskProvider extends AutomationProvider {
 
     // 2. Find all drop areas (should be 3: Subject, Scene, Style)
     const dropAreas = Array.from(document.querySelectorAll(this.SELECTORS.fileDropArea));
-      log(`Found ${dropAreas.length} drop areas`, "info");
+    log(`Found ${dropAreas.length} drop areas`, "info");
 
     if (dropAreas.length < 3) {
       throw new Error("Expected 3 drop areas (Subject, Scene, Style), found " + dropAreas.length);
-      }
+    }
 
     const areaIndexes = [
       {

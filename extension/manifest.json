@@ -22,7 +22,8 @@
     {
       "matches": [
         "https://labs.google/*",
-        "https://labs.google/fx/tools/whisk/project"
+        "https://labs.google/fx/tools/whisk/project",
+        "http://localhost:3000/*"
       ],
       "js": [
         "content.js"

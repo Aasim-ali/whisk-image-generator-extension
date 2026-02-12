@@ -1,3 +1,12 @@
+// Check Auth first
+chrome.storage.local.get(['authToken'], (result) => {
+  if (!result.authToken) {
+    if (window.location.href.indexOf('login.html') === -1) {
+      window.location.href = 'login.html';
+    }
+  }
+});
+
 // UI Elements
 const selectFolderBtn = document.getElementById("selectFolderBtn");
 const selectImagesBtn = document.getElementById("selectImagesBtn");
@@ -277,6 +286,18 @@ promptInputs.forEach((input) => {
 
 // Handle Image Selection
 async function handleImageSelection(event) {
+  // Check Limits
+  const storage = await chrome.storage.local.get(['dailyLimit', 'dailyUsage', 'planName']);
+  const dailyLimit = storage.dailyLimit || 5; // Default free tier
+  const dailyUsage = storage.dailyUsage || 0;
+  const remaining = dailyLimit - dailyUsage;
+
+  if (remaining <= 0) {
+    showToast("error", "Limit Reached", "You have reached your daily generation limit.");
+    event.target.value = ""; // Reset input
+    return;
+  }
+
   const files = Array.from(event.target.files);
 
   // Filter for image files only
@@ -284,7 +305,14 @@ async function handleImageSelection(event) {
 
   if (newFiles.length === 0) return;
 
-  selectedImages = newFiles; // temporarily hold files
+  // Enforce Limit
+  let finalFiles = newFiles;
+  if (newFiles.length > remaining) {
+    alert(`Plan Limit: You can only select ${remaining} more image(s) today.`);
+    finalFiles = newFiles.slice(0, remaining);
+  }
+
+  selectedImages = finalFiles; // temporarily hold files
 
   await updateSelectedImageUI(true);
 

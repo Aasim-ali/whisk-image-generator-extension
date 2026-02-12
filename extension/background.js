@@ -25,7 +25,7 @@ async function initSocket() {
 function connectBgSocket(token, deviceId) {
   if (socket && socket.connected) return;
 
-  const API_URL = "http://localhost:5000";
+  const API_URL = "https://whisk-api.duckdns.org";
 
   socket = io(API_URL, {
     auth: { token, deviceId },
@@ -36,15 +36,32 @@ function connectBgSocket(token, deviceId) {
     console.log("Background: Connected to Socket.io");
   });
 
+  socket.on("init_state", (data) => {
+    console.log("Background: Init State", data);
+    chrome.storage.local.set({
+      dailyUsage: data.dailyUsage,
+      dailyLimit: data.dailyLimit,
+      planName: data.planName
+    });
+    // Optional: Notify popup
+    sendMessageToPopup({ action: "LIMITS_UPDATED", data });
+  });
+
   socket.on("limit_reached", (data) => {
     dailyLimitReached = true;
     console.log("Background: Limit Reached");
     sendLogToPopup("⚠️ Daily limit reached. Stopping...", "error");
     stopGeneration();
+    chrome.storage.local.set({ dailyLimitReached: true });
   });
 
   socket.on("update_usage", (data) => {
-    // optional: sync logs
+    console.log("Background: Usage Update", data);
+    chrome.storage.local.set({
+      dailyUsage: data.dailyUsage,
+      dailyLimit: data.dailyLimit
+    });
+    sendMessageToPopup({ action: "LIMITS_UPDATED", data });
   });
 }
 
