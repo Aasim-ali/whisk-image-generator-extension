@@ -10,9 +10,12 @@ export default function Plans() {
         <div className="min-h-screen text-white pt-24 pb-10">
             <Script src="https://checkout.razorpay.com/v1/checkout.js" />
             <div className="container mx-auto px-6">
-                <h1 className="text-4xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+                <h1 className="text-4xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
                     Choose Your Plan
                 </h1>
+                <h2 className="text-xl text-gray-400 text-center mb-16 font-medium">
+                    Select the perfect bulk AI generation package for your needs
+                </h2>
 
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
