@@ -32,45 +32,39 @@ export default function ScrollToTop() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: 20 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-8 right-8 z-50 w-12 h-12 md:w-14 md:h-14 rounded-full glass border-2 border-primary/30 flex items-center justify-center text-white shadow-lg shadow-primary/20 backdrop-blur-md"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="fixed bottom-8 right-8 z-50 w-12 h-12 md:w-16 md:h-16 rounded-[2rem] bg-white border-2 border-primary/20 flex items-center justify-center text-gray-900 shadow-3xl shadow-primary/20 backdrop-blur-xl group"
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    whileTap={{ scale: 0.9 }}
                     aria-label="Scroll to top"
                 >
                     {/* Circular progress */}
-                    <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none p-1">
+                    <svg className="absolute bottom-5 right-5 inset-0 w-full h-full -rotate-90 pointer-events-none p-1">
                         <circle
                             cx="50%"
                             cy="50%"
-                            r="20"
-                            stroke="rgba(255, 255, 255, 0.1)"
-                            strokeWidth="3"
+                            r="24"
+                            stroke="#f3f4f6"
+                            strokeWidth="4"
                             fill="none"
                         />
                         <circle
                             cx="50%"
                             cy="50%"
-                            r="20"
-                            stroke="url(#gradient)"
-                            strokeWidth="3"
+                            r="24"
+                            stroke="var(--primary)"
+                            strokeWidth="4"
                             fill="none"
-                            strokeDasharray={125.6} // 2 * PI * 20
-                            strokeDashoffset={125.6 - (125.6 * progress) / 100}
+                            strokeDasharray={150.7} // 2 * PI * 24
+                            strokeDashoffset={150.7 - (150.7 * progress) / 100}
                             strokeLinecap="round"
                             className="transition-all duration-100 ease-out"
                         />
-                        <defs>
-                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#8a2be2" />
-                                <stop offset="100%" stopColor="#ff0080" />
-                            </linearGradient>
-                        </defs>
                     </svg>
 
                     {/* Arrow icon */}
-                    <div className="relative z-10 text-white">
+                    <div className="relative z-10 text-black group-hover:scale-110 transition-transform">
                         <svg
-                            className="w-5 h-5 md:w-6 md:h-6"
+                            className="w-6 h-6 md:w-8 md:h-8"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -78,7 +72,7 @@ export default function ScrollToTop() {
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                strokeWidth={2.5}
+                                strokeWidth={3}
                                 d="M5 10l7-7m0 0l7 7m-7-7v18"
                             />
                         </svg>

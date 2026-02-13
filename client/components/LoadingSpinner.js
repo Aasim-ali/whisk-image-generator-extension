@@ -40,7 +40,7 @@ export default function LoadingSpinner({
         return (
             <div className={`${sizes[size]} ${className} flex items-center justify-center`}>
                 <motion.div
-                    className={`w-full h-full rounded-full bg-gradient-to-r from-primary to-accent`}
+                    className={`w-full h-full rounded-full bg-gradient-to-r from-primary to-primary-dark`}
                     animate={{
                         scale: [1, 1.2, 1],
                         opacity: [1, 0.6, 1]
@@ -61,7 +61,7 @@ export default function LoadingSpinner({
                 {[0, 1, 2].map((i) => (
                     <motion.div
                         key={i}
-                        className={`${size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-3 h-3' : 'w-4 h-4'} rounded-full bg-gradient-to-r from-primary to-accent`}
+                        className={`${size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-3 h-3' : 'w-4 h-4'} rounded-full bg-gradient-to-r from-primary to-primary-dark`}
                         animate={{
                             y: [0, -10, 0],
                             opacity: [1, 0.5, 1]
@@ -87,7 +87,7 @@ export function SkeletonLoader({ className = '', lines = 3 }) {
     return (
         <div className={`space-y-3 ${className}`}>
             {Array.from({ length: lines }).map((_, i) => (
-                <div key={i} className="skeleton h-4 w-full" style={{ width: `${100 - i * 15}%` }}></div>
+                <div key={i} className="skeleton h-4 w-full bg-gray-100 rounded-lg animate-pulse" style={{ width: `${100 - i * 15}%` }}></div>
             ))}
         </div>
     );
@@ -98,10 +98,10 @@ export function SkeletonLoader({ className = '', lines = 3 }) {
  */
 export function FullPageLoader() {
     return (
-        <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="text-center">
                 <motion.div
-                    className="w-20 h-20 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-3xl font-bold mb-4 mx-auto"
+                    className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center text-black text-3xl font-black mb-6 mx-auto shadow-2xl shadow-primary/20"
                     animate={{
                         rotate: [0, 360],
                         scale: [1, 1.1, 1]

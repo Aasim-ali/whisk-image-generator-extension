@@ -79,14 +79,14 @@ function Toast({ toast, onClose }) {
             initial={{ opacity: 0, x: 100, scale: 0.8 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.8 }}
-            className={`glass border-2 ${colors[type]} p-4 rounded-xl shadow-xl min-w-[300px] backdrop-blur-xl`}
+            className={`relative border-2 ${colors[type]} p-5 rounded-[2rem] bg-white shadow-2xl min-w-[320px] overflow-hidden`}
         >
-            <div className="flex items-start gap-3">
-                {icons[type]}
-                <p className="flex-1 text-white text-sm leading-relaxed">{message}</p>
+            <div className="flex items-start gap-4">
+                <div className="mt-1">{icons[type]}</div>
+                <p className="flex-1 text-gray-900 font-bold text-sm leading-relaxed">{message}</p>
                 <button
                     onClick={onClose}
-                    className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
+                    className="text-gray-400 hover:text-black transition-colors flex-shrink-0 mt-1"
                 >
                     <X size={18} />
                 </button>
@@ -95,7 +95,7 @@ function Toast({ toast, onClose }) {
             {/* Progress bar */}
             {duration > 0 && (
                 <motion.div
-                    className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-primary to-accent rounded-b-xl"
+                    className="absolute bottom-0 left-0 h-1.5 bg-primary"
                     initial={{ width: '100%' }}
                     animate={{ width: '0%' }}
                     transition={{ duration: duration / 1000, ease: 'linear' }}

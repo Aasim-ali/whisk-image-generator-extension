@@ -9,9 +9,22 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: '#8a2be2',
-                secondary: '#00f0ff',
-                accent: '#ff0080',
+                primary: {
+                    DEFAULT: 'var(--primary)',
+                    dark: 'var(--primary-dark)',
+                    light: 'var(--primary-light)',
+                    glow: 'var(--primary-glow)',
+                },
+                secondary: {
+                    DEFAULT: 'var(--secondary)',
+                    dark: 'var(--secondary-dark)',
+                    light: 'var(--secondary-light)',
+                },
+                accent: {
+                    blue: 'var(--accent-blue)',
+                    purple: 'var(--accent-purple)',
+                    green: 'var(--accent-green)',
+                }
             },
         },
     },

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Mail, Github, Twitter, Linkedin, Heart } from 'lucide-react';
+import { Mail, Github, Twitter, Linkedin, Heart, ExternalLink } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -35,31 +36,35 @@ export default function Footer() {
     };
 
     const socialLinks = [
-        { icon: <Twitter size={20} />, href: '#', label: 'Twitter' },
-        { icon: <Github size={20} />, href: '#', label: 'GitHub' },
-        { icon: <Linkedin size={20} />, href: '#', label: 'LinkedIn' },
-        { icon: <Mail size={20} />, href: 'mailto:hello@whisk.com', label: 'Email' }
+        { icon: <Twitter size={18} />, href: '#', label: 'Twitter' },
+        { icon: <Github size={18} />, href: '#', label: 'GitHub' },
+        { icon: <Linkedin size={18} />, href: '#', label: 'LinkedIn' },
+        { icon: <Mail size={18} />, href: 'mailto:hello@whisk.com', label: 'Email' }
     ];
 
     return (
-        <footer className="relative border-t border-white/5 bg-black/20 mt-20">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent pointer-events-none" />
+        <footer className="relative border-t border-gray-100 bg-gray-50/50 mt-40">
+            {/* Background Gradient Decorations */}
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -z-10" />
+            <div className="absolute top-40 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -z-10" />
 
-            <div className="container relative z-10">
-                {/* Main Footer Content */}
-                <div className="py-16 grid grid-cols-2 md:grid-cols-5 gap-8">
-                    {/* Brand Column */}
-                    <div className="col-span-2 md:col-span-1">
-                        <Link href="/" className="inline-flex items-center gap-2 group mb-4">
-                            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
-                                W
-                            </span>
-                            <span className="text-xl font-bold text-white">Whisk</span>
-                        </Link>
-                        <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                            Automate your creative workflow with AI-powered image generation.
-                        </p>
+            <div className="container mx-auto px-4">
+                {/* Main Content */}
+                <div className="py-24 grid grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-8">
+                    {/* Brand Info */}
+                    <div className="col-span-2 lg:col-span-2 space-y-8">
+                        <div>
+                            <Link href="/" className="inline-flex items-center gap-3 transition-transform active:scale-95 group">
+                                <span className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-black text-2xl font-black shadow-xl shadow-primary/20 transition-transform group-hover:rotate-12 duration-500">
+                                    W
+                                </span>
+                                <span className="text-2xl font-black text-gray-900 tracking-tight">Whisk</span>
+                            </Link>
+                            <p className="mt-6 text-gray-500 font-bold text-sm leading-relaxed max-w-xs">
+                                The #1 one-click bulk Google Whisk AI image generator.
+                                Scale your creative output with precision and speed.
+                            </p>
+                        </div>
 
                         {/* Social Links */}
                         <div className="flex gap-3">
@@ -70,8 +75,8 @@ export default function Footer() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label={social.label}
-                                    className="w-10 h-10 rounded-lg glass border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-primary/30 transition-all"
-                                    whileHover={{ scale: 1.1, y: -2 }}
+                                    className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                                    whileHover={{ y: -4 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
                                     {social.icon}
@@ -80,33 +85,27 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Product */}
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">Product</h3>
-                        <ul className="space-y-3">
+                    {/* Links Groups */}
+                    <div className="space-y-6">
+                        <h3 className="text-gray-900 font-black uppercase tracking-[0.2em] text-[10px]">Product</h3>
+                        <ul className="space-y-4">
                             {footerLinks.product.map((link) => (
                                 <li key={link.name}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-white text-sm transition-colors"
-                                    >
+                                    <Link href={link.href} className="text-gray-500 hover:text-primary font-bold text-sm transition-colors inline-flex items-center gap-1 group">
                                         {link.name}
+                                        {link.href === '#' && <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />}
                                     </Link>
                                 </li>
                             ))}
                         </ul>
                     </div>
 
-                    {/* Company */}
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">Company</h3>
-                        <ul className="space-y-3">
+                    <div className="space-y-6">
+                        <h3 className="text-gray-900 font-black uppercase tracking-[0.2em] text-[10px]">Company</h3>
+                        <ul className="space-y-4">
                             {footerLinks.company.map((link) => (
                                 <li key={link.name}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-white text-sm transition-colors"
-                                    >
+                                    <Link href={link.href} className="text-gray-500 hover:text-primary font-bold text-sm transition-colors inline-flex items-center gap-1 group">
                                         {link.name}
                                     </Link>
                                 </li>
@@ -114,16 +113,12 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Resources */}
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">Resources</h3>
-                        <ul className="space-y-3">
+                    <div className="space-y-6">
+                        <h3 className="text-gray-900 font-black uppercase tracking-[0.2em] text-[10px]">Resources</h3>
+                        <ul className="space-y-4">
                             {footerLinks.resources.map((link) => (
                                 <li key={link.name}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-white text-sm transition-colors"
-                                    >
+                                    <Link href={link.href} className="text-gray-500 hover:text-primary font-bold text-sm transition-colors inline-flex items-center gap-1 group">
                                         {link.name}
                                     </Link>
                                 </li>
@@ -131,16 +126,12 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Legal */}
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">Legal</h3>
-                        <ul className="space-y-3">
+                    <div className="space-y-6">
+                        <h3 className="text-gray-900 font-black uppercase tracking-[0.2em] text-[10px]">Legal</h3>
+                        <ul className="space-y-4">
                             {footerLinks.legal.map((link) => (
                                 <li key={link.name}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-white text-sm transition-colors"
-                                    >
+                                    <Link href={link.href} className="text-gray-500 hover:text-primary font-bold text-sm transition-colors inline-flex items-center gap-1 group">
                                         {link.name}
                                     </Link>
                                 </li>
@@ -150,14 +141,18 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-white/5 py-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-gray-500 text-sm text-center md:text-left">
-                            © {currentYear} Whisk Image Generator. All rights reserved.
-                        </p>
+                <div className="border-t border-gray-100 py-12 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <p className="text-gray-400 font-bold text-[11px] uppercase tracking-widest order-2 md:order-1">
+                        © {currentYear} WhiskAutomator. All rights reserved.
+                    </p>
 
-                        <p className="text-gray-500 text-sm flex items-center gap-2">
-                            Made with <Heart size={16} className="text-red-500 fill-red-500 animate-pulse" /> by the Whisk Team
+                    <div className="flex items-center gap-8 order-1 md:order-2">
+                        <div className="px-5 py-2 rounded-full border border-gray-100 bg-white shadow-sm flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Systems Operational</span>
+                        </div>
+                        <p className="text-gray-400 font-bold text-[11px] flex items-center gap-2">
+                            Made with <Heart size={14} className="text-primary fill-primary" /> by Whisk Team
                         </p>
                     </div>
                 </div>

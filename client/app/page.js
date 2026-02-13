@@ -9,33 +9,13 @@ import {
   Zap, Shield, Users, Star
 } from 'lucide-react';
 import AnimatedCounter from '../components/AnimatedCounter';
-import { fadeInUp, staggerContainer, staggerItem, cardHover } from '../utils/animations';
+import { fadeInUp, staggerContainer, staggerItem } from '../utils/animations';
 
 export default function Home() {
   // Animation State
   const [activeStep, setActiveStep] = useState(0);
   const [consoleLogs, setConsoleLogs] = useState([]);
-  const [prompts, setPrompts] = useState(['', '', '']);
-  const [selectedFolder, setSelectedFolder] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-
-  // Typing animation for headline
-  const [displayedText, setDisplayedText] = useState('');
-  const fullText = 'Automate Your Creative Workflow';
-
-  useEffect(() => {
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < fullText.length) {
-        setDisplayedText(fullText.substring(0, i + 1));
-        i++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 80);
-
-    return () => clearInterval(typingInterval);
-  }, []);
 
   // Simulation Sequence
   useEffect(() => {
@@ -44,40 +24,33 @@ export default function Home() {
         // Reset
         setActiveStep(0);
         setConsoleLogs([]);
-        setPrompts(['', '', '']);
-        setSelectedFolder(null);
         setIsGenerating(false);
         await new Promise(r => setTimeout(r, 1000));
 
         // Step 1: Select Images
         setActiveStep(1);
         await new Promise(r => setTimeout(r, 1500));
-        setSelectedFolder("Jewelry_Collection_Summer");
+        setConsoleLogs(prev => [...prev, "📁 Connected to folder: Jewelry_Summer_2024"]);
 
         // Step 2: Templates
         setActiveStep(2);
         await new Promise(r => setTimeout(r, 1500));
-        setPrompts([
-          "Ultra-realistic luxury jewelry photography...",
-          "Side view with dramatic lighting...",
-          "Top-down perspective flat lay..."
-        ]);
+        setConsoleLogs(prev => [...prev, "📝 Applied Photography Template: 'Luxury Cinematic'"]);
 
         // Step 3: Start
         setActiveStep(3);
         await new Promise(r => setTimeout(r, 1000));
         setIsGenerating(true);
+        setConsoleLogs(prev => [...prev, "▶ STARTING WHISK AUTOMATION BOT..."]);
 
-        // Step 4: Console Logs
+        // Console Logs
         const logs = [
-          "✨ Whisk Image Generator Bot Ready",
-          "📌 Step 1: Select images (folder or files)",
-          "📝 Loaded 3 prompts",
-          "▶ STARTING WHISK IMAGE GENERATION BOT",
-          "✓ Processing Image 1/5...",
+          "✨ Processing Image 1/5...",
           "✓ Generated: Ring_Front_View.jpg",
-          "✓ Processing Image 2/5...",
-          "✓ Generated: Ring_Side_View.jpg"
+          "✨ Processing Image 2/5...",
+          "✓ Generated: Ring_Side_View.jpg",
+          "✨ Processing Image 3/5...",
+          "✓ Generated: Bracelet_Flatlay.jpg"
         ];
 
         for (const log of logs) {
@@ -85,7 +58,7 @@ export default function Home() {
           await new Promise(r => setTimeout(r, 800));
         }
 
-        await new Promise(r => setTimeout(r, 3000));
+        await new Promise(r => setTimeout(r, 4000));
       }
     };
     sequence();
@@ -93,25 +66,19 @@ export default function Home() {
 
   const features = [
     {
-      icon: <Folder size={24} />,
+      icon: <Folder size={32} />,
       title: "Batch Processing",
-      description: "Connect a local folder and process hundreds of images automatically. No manual uploading required.",
-      color: "from-blue-500/20 to-blue-500/5",
-      borderColor: "border-blue-500/30"
+      description: "Connect a local folder and process hundreds of images automatically. No manual uploading required."
     },
     {
-      icon: <Settings size={24} />,
+      icon: <Settings size={32} />,
       title: "Smart Templates",
-      description: "Save your best prompts as templates. Apply them to different product lines with a single click.",
-      color: "from-purple-500/20 to-purple-500/5",
-      borderColor: "border-purple-500/30"
+      description: "Save your best prompts as templates. Apply them to different product lines with a single click."
     },
     {
-      icon: <Terminal size={24} />,
+      icon: <Terminal size={32} />,
       title: "Live Monitoring",
-      description: "Watch the progress in real-time with our detailed console. Detects errors and retries automatically.",
-      color: "from-pink-500/20 to-pink-500/5",
-      borderColor: "border-pink-500/30"
+      description: "Watch the progress in real-time with our detailed console. Detects errors and retries automatically."
     }
   ];
 
@@ -127,7 +94,7 @@ export default function Home() {
       name: "Sarah Johnson",
       role: "E-commerce Manager",
       company: "Fashion Forward",
-      content: "Whisk has completely transformed our product photography workflow. What used to take days now takes hours!",
+      content: "WhiskAutomator has completely transformed our product photography workflow. What used to take days now takes hours!",
       rating: 5,
       avatar: "SJ"
     },
@@ -150,229 +117,186 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen relative text-white selection:bg-primary selection:text-white">
-      {/* Background Elements */}
-      <div className="fixed inset-0 bg-[#030014] -z-20"></div>
-      <div className="fixed inset-0 bg-grid opacity-20 -z-10"></div>
-      <div className="fixed top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/10 to-transparent -z-10 blur-3xl"></div>
-      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-t from-accent/10 to-transparent -z-10 blur-3xl"></div>
-
+    <div className="min-h-screen bg-white text-gray-900">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="container relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-
-            {/* Left Content */}
+        <div className="container relative z-10 px-4 mx-auto">
+          <div className="max-w-4xl mx-auto text-center">
             <motion.div
-              className="lg:w-1/2 text-center lg:text-left"
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <motion.div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 border border-primary/30"
-                whileHover={{ scale: 1.05 }}
-              >
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-                </span>
-                <span className="text-sm font-medium text-gray-300">v2.0 Now Available</span>
-                <Sparkles size={16} className="text-primary" />
-              </motion.div>
-
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                {displayedText}
-                <motion.span
-                  animate={{ opacity: [1, 0, 1] }}
-                  transition={{ duration: 0.8, repeat: Infinity }}
-                  className="inline-block w-1 h-16 ml-1 bg-primary align-middle"
-                />
-                <br />
-                <span className="text-gradient">with AI Power</span>
-              </h1>
-
-              <p className="text-xl text-gray-400 mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Generate thousands of professional product images in minutes.
-                Select files, apply templates, and let Whisk handle the rest.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/register">
-                  <motion.button
-                    className="btn text-lg px-8 py-4 flex items-center justify-center gap-2"
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 50px rgba(138, 43, 226, 0.6)" }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Upload size={20} />
-                    Get Extension
-                  </motion.button>
-                </Link>
-                <Link href="#demo">
-                  <motion.button
-                    className="btn btn-secondary text-lg px-8 py-4 flex items-center justify-center gap-2"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Play size={20} />
-                    Watch Demo
-                  </motion.button>
-                </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap gap-6 justify-center lg:justify-start mt-12 text-sm">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Check size={18} className="text-success" />
-                  <span>No credit card required</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Check size={18} className="text-success" />
-                  <span>Free 14-day trial</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Check size={18} className="text-success" />
-                  <span>Cancel anytime</span>
-                </div>
-              </div>
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+              </span>
+              <span className="text-sm font-bold text-gray-900">Live & 100% Free to Use</span>
             </motion.div>
 
-            {/* Right Content - Live Simulation */}
-            <motion.div
-              className="lg:w-1/2 w-full"
+            <motion.h1 
+              className="text-5xl md:text-8xl font-black mb-6 leading-[1.1] tracking-tight text-gray-900 px-4 md:px-0"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.8 }}
             >
-              <div className="relative glass-strong rounded-xl border border-white/10 shadow-2xl overflow-hidden bg-[#0a0a0a]">
-                {/* Simulation Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500"></div>
+              Generate with <br />
+              <span className="bg-primary px-4 rounded-2xl md:rounded-3xl inline-block mt-2">WhiskAutomator</span>
+            </motion.h1>
+
+            <motion.p
+              className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto font-medium"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.3 }}
+            >
+              One-Click Bulk Google Whisk AI Image Generator.
+              Automate your workflow and download hundreds of images instantly.
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col sm:flex-row gap-6 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <Link href="/register">
+                <motion.button
+                  className="px-12 py-5 rounded-3xl bg-primary text-black text-2xl font-black shadow-2xl shadow-primary/40 flex items-center gap-3 group"
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center">
+                    <Zap size={20} fill="currentColor" />
                   </div>
-                  <div className="text-xs text-gray-500 font-mono">Whisk Bot Dashboard</div>
-                </div>
-
-                {/* Simulation Body */}
-                <div className="p-6 space-y-6">
-
-                  {/* Step 1: Image Selection */}
-                  <motion.div
-                    className={`transition-all duration-500 ${activeStep === 1 ? 'opacity-100' : 'opacity-50'}`}
-                    animate={activeStep === 1 ? { scale: [1, 1.02, 1] } : {}}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-bold text-gray-300 flex items-center gap-2">
-                        <ImageIcon size={16} className={activeStep === 1 ? "text-primary" : ""} />
-                        Select Subject Images
-                      </h3>
-                      {selectedFolder && <span className="text-xs text-success flex items-center gap-1"><Check size={12} /> {selectedFolder}</span>}
-                    </div>
-                    <div className="flex gap-3">
-                      <button className={`flex-1 py-3 rounded-lg border border-dashed border-white/20 flex items-center justify-center gap-2 text-sm transition-all ${activeStep === 1 ? 'bg-primary/20 border-primary scale-105' : 'bg-white/5 hover:bg-white/10'}`}>
-                        <Folder size={16} /> Choose Folder
-                      </button>
-                      <button className="flex-1 py-3 rounded-lg border border-dashed border-white/20 flex items-center justify-center gap-2 text-sm bg-white/5 hover:bg-white/10 transition-all">
-                        <ImageIcon size={16} /> Choose Images
-                      </button>
-                    </div>
-                  </motion.div>
-
-                  {/* Step 2: Prompts */}
-                  <motion.div
-                    className={`transition-all duration-500 ${activeStep === 2 ? 'opacity-100' : 'opacity-50'}`}
-                    animate={activeStep === 2 ? { scale: [1, 1.02, 1] } : {}}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-bold text-gray-300 flex items-center gap-2">
-                        <FileText size={16} className={activeStep === 2 ? "text-primary" : ""} />
-                        Prompts & Templates
-                      </h3>
-                      <button className={`text-xs px-2 py-1 rounded bg-white/10 flex items-center gap-1 ${activeStep === 2 ? 'text-primary' : ''} hover:bg-white/20 transition-all`}>
-                        <Settings size={12} /> Manage Templates
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {prompts.map((p, i) => (
-                        <motion.div
-                          key={i}
-                          className="h-10 bg-white/5 rounded border border-white/10 px-3 flex items-center text-xs text-gray-400 truncate"
-                          initial={{ width: 0, opacity: 0 }}
-                          animate={activeStep >= 2 ? { width: "100%", opacity: 1 } : {}}
-                          transition={{ delay: i * 0.1 }}
-                        >
-                          {p || "Enter prompt or select template..."}
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-
-                  {/* Step 3: Controls */}
-                  <div className={`transition-opacity duration-500 ${activeStep === 3 ? 'opacity-100' : 'opacity-50'}`}>
-                    <motion.button
-                      className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${isGenerating ? 'bg-red-500/20 text-red-400 border-2 border-red-500' : 'bg-primary text-white shadow-lg shadow-primary/20'}`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {isGenerating ? <><Video size={18} className="animate-pulse" /> Stop Generation</> : <><Play size={18} /> Start Generation</>}
-                    </motion.button>
-                  </div>
-
-                  {/* Step 4: Console */}
-                  <div className="bg-black/50 rounded-lg p-4 font-mono text-xs h-48 overflow-y-auto border border-white/5 custom-scrollbar">
-                    <div className="text-gray-500 mb-2 border-b border-white/10 pb-1 flex items-center gap-2">
-                      <Terminal size={12} /> Progress Console
-                    </div>
-                    <AnimatePresence>
-                      {consoleLogs.map((log, i) => (
-                        <motion.div
-                          key={i}
-                          className="mb-1 text-gray-300"
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <span className="text-gray-600">[{new Date().toLocaleTimeString()}]</span> {log}
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                    {consoleLogs.length === 0 && <span className="text-gray-600">Waiting for input...</span>}
-                  </div>
-
-                </div>
-              </div>
-
-              {/* Steps Indicator */}
-              <div className="flex justify-center gap-2 mt-6">
-                {[1, 2, 3, 4].map((step) => (
-                  <motion.div
-                    key={step}
-                    className={`h-2 rounded-full transition-all duration-300 ${activeStep >= step ? 'bg-gradient-to-r from-primary to-accent w-8' : 'bg-white/20 w-2'}`}
-                    animate={activeStep >= step ? { scale: [1, 1.2, 1] } : {}}
-                  />
-                ))}
-              </div>
+                  Try it now
+                  <ChevronRight size={28} className="transition-transform group-hover:translate-x-1" />
+                </motion.button>
+              </Link>
             </motion.div>
 
+            <motion.div
+              className="flex flex-wrap gap-8 justify-center mt-12 text-gray-500 font-bold"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.8 }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-accent-green" />
+                <span>100% Free to Use</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-accent-blue" />
+                <span>Chrome Web Store</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-accent-purple" />
+                <span>Google Labs Compatible</span>
+              </div>
+            </motion.div>
           </div>
+
+          {/* Simulation / Mockup Section */}
+          <motion.div
+            className="mt-20 max-w-5xl mx-auto"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            <div className="relative bg-gray-50 border border-gray-200 rounded-[3rem] shadow-2xl shadow-black/5 overflow-hidden p-4">
+              <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
+                <div className="flex items-center justify-between px-8 py-4 border-b border-gray-100 bg-gray-50/50">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-400" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                    <div className="w-3 h-3 rounded-full bg-green-400" />
+                  </div>
+                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Whisk Automated Workflow - Active</div>
+                  <div className="w-10" />
+                </div>
+
+                <div className="p-8 grid lg:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                    <div className={`p-6 rounded-[2rem] border transition-all duration-500 ${activeStep === 1 ? 'bg-primary/5 border-primary shadow-xl shadow-primary/5 scale-[1.02]' : 'bg-gray-50 border-gray-100 opacity-40'}`}>
+                      <div className="flex items-center gap-4 mb-2">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeStep === 1 ? 'bg-primary text-black' : 'bg-gray-200 text-gray-500'}`}>
+                          <Folder size={20} />
+                        </div>
+                        <h3 className="text-xl font-black text-gray-900">Select Images</h3>
+                      </div>
+                      <p className="text-sm text-gray-500 font-bold ml-14">Click to select your product folder</p>
+                    </div>
+
+                    <div className={`p-6 rounded-[2rem] border transition-all duration-500 ${activeStep === 2 ? 'bg-primary/5 border-primary shadow-xl shadow-primary/5 scale-[1.02]' : 'bg-gray-50 border-gray-100 opacity-40'}`}>
+                      <div className="flex items-center gap-4 mb-2">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeStep === 2 ? 'bg-primary text-black' : 'bg-gray-200 text-gray-500'}`}>
+                          <FileText size={20} />
+                        </div>
+                        <h3 className="text-xl font-black text-gray-900">Apply Templates</h3>
+                      </div>
+                      <p className="text-sm text-gray-500 font-bold ml-14">Choose your AI photography style</p>
+                    </div>
+
+                    <div className={`p-6 rounded-[2rem] border transition-all duration-500 ${activeStep === 3 ? 'bg-primary/5 border-primary shadow-xl shadow-primary/5 scale-[1.02]' : 'bg-gray-50 border-gray-100 opacity-40'}`}>
+                      <div className="flex items-center gap-4 mb-2">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeStep === 3 ? 'bg-primary text-black' : 'bg-gray-200 text-gray-500'}`}>
+                          <Play size={20} />
+                        </div>
+                        <h3 className="text-xl font-black text-gray-900">Bulk Generate</h3>
+                      </div>
+                      <p className="text-sm text-gray-500 font-bold ml-14">Sit back while we do the work</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-900 rounded-[2.5rem] p-8 font-mono text-sm shadow-2xl relative min-h-[400px] border border-gray-800">
+                    <div className="flex items-center gap-2 text-gray-500 mb-6 border-b border-white/5 pb-4">
+                      <Terminal size={16} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Live Bot Console v2.0</span>
+                    </div>
+                    <div className="space-y-3">
+                      <AnimatePresence>
+                        {consoleLogs.map((log, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="text-gray-300 flex gap-3"
+                          >
+                            <span className="text-primary font-bold">➜</span>
+                            <span className="flex-1">{log}</span>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                      {isGenerating && (
+                        <motion.div
+                          className="flex items-center gap-3 text-primary font-black mt-6 bg-primary/10 p-4 rounded-2xl border border-primary/20"
+                          animate={{ opacity: [1, 0.6, 1] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                        >
+                          <Zap size={18} className="animate-pulse" />
+                          Automating Generations...
+                        </motion.div>
+                      )}
+                    </div>
+                    <div className="absolute bottom-6 left-8 right-8 flex justify-between items-center text-[10px] text-gray-600 font-bold uppercase tracking-widest border-t border-white/5 pt-4">
+                      <span>Status: Working</span>
+                      <span>Tasks: ACTIVE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white/5 border-y border-white/5">
-        <motion.div
-          className="container"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={staggerContainer}
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <section className="py-20 bg-gray-50 border-y border-gray-100">
+        <div className="container px-4 mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16 text-center">
             {stats.map((stat, index) => (
-              <motion.div key={index} variants={staggerItem} className="space-y-2">
-                <div className="text-4xl md:text-5xl font-bold text-gradient">
+              <motion.div key={index} className="space-y-4">
+                <div className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tighter">
                   <AnimatedCounter
                     end={stat.value}
                     duration={2000}
@@ -380,166 +304,221 @@ export default function Home() {
                     suffix={stat.suffix}
                   />
                 </div>
-                <p className="text-gray-400 text-sm md:text-base">{stat.label}</p>
+                <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">{stat.label}</p>
               </motion.div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-20" id="features">
-        <div className="container">
+      <section className="py-32" id="features">
+        <div className="container px-4 mx-auto">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-20 max-w-2xl mx-auto"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Why Whisk?</h2>
-            <p className="text-gray-400 text-lg">Built for high-volume, high-quality production.</p>
+            <h2 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 tracking-tight">Powerful Automation.</h2>
+            <p className="text-gray-500 text-xl font-bold">WhiskAutomator is built for high-volume production with efficiency at its core.</p>
           </motion.div>
 
-          <motion.div
-            className="grid md:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-          >
+          <div className="grid md:grid-cols-3 gap-10">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
-                variants={staggerItem}
-                className={`glass-hover p-8 group border-2 ${feature.borderColor} relative overflow-hidden`}
-                whileHover="hover"
+                className="p-12 rounded-[3.5rem] bg-gray-50 border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-3 group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                <div className="relative z-10">
-                  <motion.div
-                    className="w-14 h-14 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 text-white"
-                    whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {feature.icon}
-                  </motion.div>
-                  <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">
-                    {feature.description}
-                  </p>
-                  <motion.div
-                    className="mt-4 flex items-center gap-2 text-primary group-hover:gap-3 transition-all"
-                    whileHover={{ x: 5 }}
-                  >
-                    <span className="text-sm font-medium">Learn more</span>
-                    <ChevronRight size={16} />
-                  </motion.div>
+                <div className={`w-20 h-20 rounded-3xl bg-white border border-gray-100 flex items-center justify-center mb-10 text-gray-900 shadow-sm group-hover:bg-primary group-hover:border-primary transition-all duration-500 group-hover:rotate-6`}>
+                  {feature.icon}
                 </div>
+                <h3 className="text-4xl font-black mb-6 text-gray-900">{feature.title}</h3>
+                <p className="text-gray-500 leading-relaxed font-bold text-lg">
+                  {feature.description}
+                </p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-black/20">
-        <div className="container">
+      {/* Quick Start Guide */}
+      <section className="py-32 bg-gray-50/50">
+        <div className="container px-4 mx-auto">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-24 max-w-2xl mx-auto"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Loved by Creators</h2>
-            <p className="text-gray-400 text-lg">Join thousands of professionals who trust Whisk</p>
+            <h2 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 tracking-tight text-center">Get Started.</h2>
+            <p className="text-gray-500 text-xl font-bold">Launch your first bulk generation in less than 60 seconds.</p>
           </motion.div>
 
-          <motion.div
-            className="grid md:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-          >
-            {testimonials.map((testimonial, index) => (
+          <div className="grid md:grid-cols-3 gap-16 relative">
+            {/* Connecting lines for desktop */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-10 -translate-y-12" />
+
+            {[
+              {
+                step: "01",
+                title: "Install Extension",
+                desc: "Add WhiskAutomator to your Chrome browser with one click from the Web Store.",
+                icon: <Zap size={24} />
+              },
+              {
+                step: "02",
+                title: "Connect Folder",
+                desc: "Select the local folder containing your product images. No uploads needed.",
+                icon: <Folder size={24} />
+              },
+              {
+                step: "03",
+                title: "Run Automator",
+                desc: "Sit back and watch as we generate and download hundreds of images instantly.",
+                icon: <Play size={24} />
+              }
+            ].map((step, i) => (
               <motion.div
-                key={index}
-                variants={staggerItem}
-                className="glass-hover p-6 relative"
-                whileHover="hover"
+                key={i}
+                className="relative text-center group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.2 }}
               >
-                {/* Rating Stars */}
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
-                  ))}
+                <div className="w-24 h-24 rounded-[2rem] bg-white border-4 border-gray-50 flex items-center justify-center mx-auto mb-10 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                  <div className="text-primary group-hover:rotate-12 transition-transform duration-500">
+                    {step.icon}
+                  </div>
                 </div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-6">
+                  <span className="text-6xl font-black text-gray-100 group-hover:text-primary/10 transition-colors duration-500">{step.step}</span>
+                </div>
+                <h3 className="text-3xl font-black text-gray-900 mb-6">{step.title}</h3>
+                <p className="text-gray-500 font-bold leading-relaxed">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-                {/* Content */}
-                <p className="text-gray-300 mb-6 leading-relaxed italic">
-                  "{testimonial.content}"
-                </p>
+      {/* Testimonials */}
+      <section className="py-32 bg-gray-900 text-white rounded-[5rem] mx-4 mb-4 overflow-hidden relative border border-white/5">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
+        <div className="container px-4 mx-auto relative z-10">
+          <motion.div
+            className="text-center mb-20"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-center">Trusted by Experts.</h2>
+            <div className="flex justify-center gap-2">
+              {[1, 2, 3, 4, 5].map(i => <Star key={i} size={32} fill="#FFDD00" color="#FFDD00" />)}
+            </div>
+          </motion.div>
 
-                {/* Author */}
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                    {testimonial.avatar}
+          <div className="grid md:grid-cols-3 gap-12">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={i}
+                className="p-10 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 transition-colors duration-300"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <p className="text-2xl font-bold leading-relaxed mb-10 italic text-gray-200">"{t.content}"</p>
+                <div className="flex items-center gap-6 pt-6 border-t border-white/10">
+                  <div className="w-16 h-16 rounded-[1.5rem] bg-primary text-black font-black flex items-center justify-center text-2xl shadow-lg shadow-primary/20">
+                    {t.avatar}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{testimonial.name}</p>
-                    <p className="text-sm text-gray-400">{testimonial.role}, {testimonial.company}</p>
+                    <h4 className="text-xl font-black text-white">{t.name}</h4>
+                    <p className="text-gray-500 font-black uppercase tracking-widest text-[10px] mt-1">{t.role} @ {t.company}</p>
                   </div>
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 relative overflow-hidden text-center">
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-accent/10 to-transparent pointer-events-none"></div>
-        <motion.div
-          className="container relative z-10"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-        >
+      {/* FAQ Section */}
+      <section className="py-32">
+        <div className="container px-4 mx-auto">
           <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="inline-block mb-6"
+            className="text-center mb-20 max-w-2xl mx-auto"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
           >
-            <Zap size={48} className="text-primary" />
+            <h2 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 tracking-tight text-center">Questions?</h2>
+            <p className="text-gray-500 text-xl font-bold text-center">Everything you need to know about WhiskAutomator.</p>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold mb-8">Ready to Scale?</h2>
-          <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Join professional studios using Whisk to automate their product photography pipeline.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/plans">
-              <motion.button
-                className="btn text-xl px-12 py-6 shadow-2xl shadow-primary/40 hover:shadow-primary/60"
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.95 }}
+
+          <div className="max-w-4xl mx-auto space-y-6">
+            {[
+              {
+                q: "Is WhiskAutomator really free?",
+                a: "Yes! WhiskAutomator is 100% free to use for all basic features. We believe in providing the best automation tools for everyone."
+              },
+              {
+                q: "Do I need to upload my images?",
+                a: "No. WhiskAutomator works directly with your local files to ensure maximum speed and privacy. We never store or upload your product images."
+              },
+              {
+                q: "Which browsers are supported?",
+                a: "Currently, we focus on providing a premium experience for Google Chrome users via our dedicated extension."
+              },
+              {
+                q: "Is it safe to use with Google Whisk?",
+                a: "Absolutely. Our bot mimics human interactions and follows all Google Whisk safety protocols to ensure your account remains in good standing."
+              }
+            ].map((faq, i) => (
+              <motion.div
+                key={i}
+                className="p-8 rounded-[2.5rem] bg-gray-50 border border-gray-100 hover:border-primary/50 transition-all duration-300"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
               >
-                View Pricing
-              </motion.button>
-            </Link>
-            <Link href="/register">
-              <motion.button
-                className="btn btn-outline text-xl px-12 py-6"
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Start Free Trial
-              </motion.button>
-            </Link>
+                <h4 className="text-2xl font-black text-gray-900 mb-4">{faq.q}</h4>
+                <p className="text-gray-500 font-bold leading-relaxed">{faq.a}</p>
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-40">
+        <div className="container px-4 mx-auto text-center">
+          <motion.div
+            className="max-w-5xl mx-auto p-20 rounded-[5rem] bg-primary text-black relative overflow-hidden shadow-2xl shadow-primary/30"
+            whileHover={{ scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/20 blur-[80px] rounded-full" />
+            <h2 className="text-6xl md:text-8xl font-black mb-10 leading-[0.9] tracking-tight">Ready to <br />Automate?</h2>
+            <p className="text-2xl font-black mb-16 max-w-xl mx-auto opacity-70 leading-relaxed uppercase tracking-tighter">Join 10,000+ creators and start generating product images at scale today.</p>
+            <Link href="/register">
+              <button className="px-16 py-8 rounded-[2rem] bg-black text-white text-3xl font-black shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 active:scale-95">
+                Start Generating Now
+              </button>
+            </Link>
+          </motion.div>
+        </div>
       </section>
     </div>
   );
