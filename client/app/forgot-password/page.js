@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Loader, ChevronRight, ArrowLeft, Check, Clock } from 'lucide-react';
 import { fadeInUp } from '../../utils/animations';
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useForgotPassword } from '../../hooks/useForgotPassword';
 
 const STEP_EMAIL = 1;
 const STEP_OTP = 2;
@@ -23,15 +23,12 @@ export default function ForgotPassword() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [resetToken, setResetToken] = useState('');
     const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
     const [canResend, setCanResend] = useState(false);
     const router = useRouter();
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    const { loading, error, success, requestOTP, verifyOTP, resetPassword, clearMessages } = useForgotPassword();
 
     // Countdown timer for OTP expiry
     useEffect(() => {
@@ -62,111 +59,56 @@ export default function ForgotPassword() {
     // Step 1: Request OTP
     const handleRequestOTP = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
-        setLoading(true);
 
-        try {
-            const response = await axios.post(`${API_URL}/api/auth/forgot-password/request-otp`, {
-                email,
-            });
+        const result = await requestOTP(email);
 
-            setSuccess(response.data.message);
+        if (result.success) {
             setTimeLeft(600); // Reset timer
             setCanResend(false);
             setTimeout(() => {
                 setStep(STEP_OTP);
-                setSuccess('');
+                clearMessages();
             }, 1500);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
 
     // Resend OTP
     const handleResendOTP = async () => {
-        setError('');
-        setSuccess('');
-        setLoading(true);
+        const result = await requestOTP(email);
 
-        try {
-            await axios.post(`${API_URL}/api/auth/forgot-password/request-otp`, {
-                email,
-            });
-
-            setSuccess('New OTP sent to your email!');
+        if (result.success) {
             setTimeLeft(600);
             setCanResend(false);
             setOtp(''); // Clear old OTP
-            setTimeout(() => setSuccess(''), 3000);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to resend OTP.');
-        } finally {
-            setLoading(false);
+            setTimeout(() => clearMessages(), 3000);
         }
     };
 
     // Step 2: Verify OTP
     const handleVerifyOTP = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
-        setLoading(true);
 
-        try {
-            const response = await axios.post(`${API_URL}/api/auth/forgot-password/verify-otp`, {
-                email,
-                otp,
-            });
+        const result = await verifyOTP(email, otp);
 
-            setResetToken(response.data.resetToken);
-            setSuccess('OTP verified! Set your new password.');
+        if (result.success) {
+            setResetToken(result.resetToken);
             setTimeout(() => {
                 setStep(STEP_PASSWORD);
-                setSuccess('');
+                clearMessages();
             }, 1500);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
 
     // Step 3: Reset Password
     const handleResetPassword = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
 
-        // Validation
-        if (newPassword.length < 6) {
-            setError('Password must be at least 6 characters long');
-            return;
-        }
+        const result = await resetPassword(resetToken, newPassword, confirmPassword);
 
-        if (newPassword !== confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const response = await axios.post(`${API_URL}/api/auth/forgot-password/reset-password`, {
-                resetToken,
-                newPassword,
-            });
-
-            setSuccess(response.data.message);
+        if (result.success) {
             setTimeout(() => {
                 router.push('/login');
             }, 2000);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
 
