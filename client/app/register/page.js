@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Loader, ChevronRight } from 'lucide-react';
+import { User, Mail, Lock, Loader, ChevronRight, EyeOff, Eye } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { fadeInUp } from '../../utils/animations';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -22,6 +22,7 @@ function RegisterForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isExtension = searchParams.get('extension') === 'true';
+    const [showPassword, setShowPassword] = useState(false);
 
     // Auto-redirect if already logged in
     useEffect(() => {
@@ -121,13 +122,23 @@ function RegisterForm() {
 
                             <div className="space-y-2">
                                 <Label className="text-gray-900/70 ml-1">Password</Label>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="pr-12"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-900 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
                             </div>
 
                             <Button
