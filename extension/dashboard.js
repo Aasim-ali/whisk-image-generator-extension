@@ -940,7 +940,12 @@ async function connectSocket() {
       token: authToken,
       deviceId: deviceId
     },
-    transports: ['websocket', 'polling'] // force websocket first if possible
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 3000,
+    reconnectionDelayMax: 30000,
+    timeout: 10000,
   });
 
   socket.on("connect", () => {

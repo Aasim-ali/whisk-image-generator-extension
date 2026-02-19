@@ -29,7 +29,12 @@ function connectBgSocket(token, deviceId) {
 
   socket = io(API_URL, {
     auth: { token, deviceId },
-    transports: ['websocket', 'polling']
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: 5,       // stop after 5 tries
+    reconnectionDelay: 3000,       // 3s initial delay
+    reconnectionDelayMax: 30000,   // cap at 30s
+    timeout: 10000,
   });
 
   socket.on("connect", () => {
@@ -39,6 +44,15 @@ function connectBgSocket(token, deviceId) {
 
   socket.on("disconnect", () => {
     console.log("Background: Disconnected from Socket.io");
+    sendMessageToPopup({ action: "SOCKET_DISCONNECTED" });
+  });
+
+  socket.on("connect_error", (err) => {
+    console.warn("Background: Socket connect error —", err.message);
+  });
+
+  socket.io.on("reconnect_failed", () => {
+    console.warn("Background: Socket reconnection exhausted. Will retry on next login.");
     sendMessageToPopup({ action: "SOCKET_DISCONNECTED" });
   });
 
