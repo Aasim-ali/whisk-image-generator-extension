@@ -22,6 +22,7 @@ import {
     Receipt as ReceiptIcon,
     CreditCard as CreditCardIcon,
     Logout as LogoutIcon,
+    Mail as MailIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 240;
@@ -46,6 +47,7 @@ export default function Layout({ children }) {
         { text: 'Customers', icon: <PeopleIcon />, path: '/customers' },
         { text: 'Transactions', icon: <ReceiptIcon />, path: '/transactions' },
         { text: 'Plans', icon: <CreditCardIcon />, path: '/plans' },
+        { text: 'Contacts', icon: <MailIcon />, path: '/contacts' },
     ];
 
     const drawer = (

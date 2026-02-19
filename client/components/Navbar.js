@@ -26,6 +26,7 @@ export default function Navbar() {
         { name: 'Home', href: '/' },
         { name: 'About', href: '/about' },
         { name: 'Pricing', href: '/plans' },
+        ...(user ? [{ name: 'Contact', href: '/contact' }] : []),
     ];
 
     return (

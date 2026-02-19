@@ -34,6 +34,12 @@ function connectBgSocket(token, deviceId) {
 
   socket.on("connect", () => {
     console.log("Background: Connected to Socket.io");
+    sendMessageToPopup({ action: "SOCKET_CONNECTED" });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Background: Disconnected from Socket.io");
+    sendMessageToPopup({ action: "SOCKET_DISCONNECTED" });
   });
 
   socket.on("init_state", (data) => {
@@ -93,8 +99,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         chrome.storage.local.set(data, () => {
           console.log("Background: Token captured from URL and saved.");
           // Visual feedback
-          chrome.action.setBadgeText({ text: "ON" });
-          chrome.action.setBadgeBackgroundColor({ color: "#4CAF50" });
+          // chrome.action.setBadgeText({ text: "ON" });
+          // chrome.action.setBadgeBackgroundColor({ color: "#4CAF50" });
 
           // Optional: Close the tab after a delay to improve UX
           setTimeout(() => {
@@ -145,11 +151,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendLogToPopup("❌ Daily limit reached. Cannot start.", "error");
       return;
     }
+    // ⛔ Block if socket not connected
+    if (!socket || !socket.connected) {
+      sendLogToPopup("❌ Not connected to server. Please wait or re-login.", "error");
+      sendMessageToPopup({ action: "SOCKET_DISCONNECTED" });
+      return;
+    }
     startGeneration(message.data, message.resume === true);
   }
 
   if (message.action === "STOP_GENERATION") {
     stopGeneration();
+  }
+
+  // Let dashboard query the live socket state
+  if (message.action === "GET_SOCKET_STATUS") {
+    sendResponse({ connected: !!(socket && socket.connected) });
+    return true;
   }
 
   if (message.action === "CONTENT_LOG") {

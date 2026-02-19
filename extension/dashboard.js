@@ -82,6 +82,27 @@ let selectedImages = [];
 let sceneImage = null;
 let styleImage = null;
 let isRunning = false;
+let socketConnected = false;
+
+const socketStatusEl = document.getElementById('socketStatus');
+
+function updateSocketStatus(connected) {
+  socketConnected = connected;
+  if (socketStatusEl) {
+    if (connected) {
+      socketStatusEl.textContent = '🟢 Connected';
+      socketStatusEl.style.background = 'rgba(34,197,94,0.15)';
+      socketStatusEl.style.color = '#22c55e';
+      socketStatusEl.style.borderColor = 'rgba(34,197,94,0.35)';
+    } else {
+      socketStatusEl.textContent = '🔴 Disconnected';
+      socketStatusEl.style.background = 'rgba(239,68,68,0.15)';
+      socketStatusEl.style.color = '#ef4444';
+      socketStatusEl.style.borderColor = 'rgba(239,68,68,0.35)';
+    }
+  }
+  validateInputs();
+}
 
 let promptInputs = [];
 
@@ -582,6 +603,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     logToConsole(`✗ ERROR: ${message.text}`, "error");
     showToast("error", "Error Occurred", message.text);
   }
+
+  // 🔌 Socket status events from background
+  if (message.action === "SOCKET_CONNECTED") {
+    updateSocketStatus(true);
+    logToConsole("✓ Server connection established", "success");
+  }
+
+  if (message.action === "SOCKET_DISCONNECTED") {
+    updateSocketStatus(false);
+    logToConsole("⚠️ Disconnected from server. Generation is paused until reconnected.", "warning");
+  }
+});
+
+// Query background for current socket state on load
+chrome.runtime.sendMessage({ action: "GET_SOCKET_STATUS" }, (response) => {
+  if (chrome.runtime.lastError) {
+    updateSocketStatus(false);
+    return;
+  }
+  updateSocketStatus(response?.connected ?? false);
 });
 
 // Initialize
@@ -885,7 +926,7 @@ loginBtn.addEventListener("click", handleLogin);
 async function connectSocket() {
   if (socket && socket.connected) return;
 
-  const API_URL = "http://localhost:5000";
+  const API_URL = "https://whisk-api.duckdns.org";
 
   // Get Device ID
   let { deviceId } = await chrome.storage.local.get("deviceId");
@@ -962,12 +1003,18 @@ function updateUsageUI(usage, limit) {
   }
 }
 
-// Override validateInputs to check limit
+// Override validateInputs to check limit AND socket connection
 const originalValidateInputs = validateInputs;
 validateInputs = function () {
   originalValidateInputs();
   if (dailyUsageCurrent >= dailyLimitMax) {
     startBtn.disabled = true;
+    startBtn.title = "Daily limit reached";
+  } else if (!socketConnected) {
+    startBtn.disabled = true;
+    startBtn.title = "Not connected to server. Please wait...";
+  } else {
+    startBtn.title = "";
   }
 }
 

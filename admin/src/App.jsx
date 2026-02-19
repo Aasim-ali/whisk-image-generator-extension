@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
 import Transactions from './pages/Transactions';
 import Plans from './pages/Plans';
+import Contacts from './pages/Contacts';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -44,6 +45,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Plans />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/contacts"
+          element={
+            <ProtectedRoute>
+              <Contacts />
             </ProtectedRoute>
           }
         />
