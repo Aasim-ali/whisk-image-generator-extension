@@ -305,6 +305,16 @@ async function openWhiskTab() {
   });
   whiskTab = tab.id;
   await waitForTabsReady(whiskTab);
+
+  // Verify we're on the correct page and not redirected to login
+  const tabInfo = await chrome.tabs.get(whiskTab);
+  if (tabInfo.url.includes('accounts.google.com') || tabInfo.url.includes('/signin')) {
+    sendLogToPopup("⚠️ Whisk requires Google login. Please log in to Google in your browser first.", "error");
+    throw new Error("LOGIN_REQUIRED: Please log into Google and try again");
+  }
+
+  // Verify content script is ready
+  await verifyContentScriptReady(whiskTab);
 }
 
 async function closeTabs() {
@@ -318,13 +328,46 @@ function generateKey() {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+async function verifyContentScriptReady(tabId, maxRetries = 10) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await chrome.tabs.sendMessage(tabId, {
+        action: "CHECK_TAB_READY"
+      });
+
+      if (response && response.ready) {
+        sendLogToPopup("✓ Content script ready", "info");
+        return true;
+      }
+    } catch (error) {
+      // Content script not ready yet
+    }
+
+    await sleep(500);
+  }
+
+  throw new Error("Content script failed to load");
+}
+
 
 
 async function processNextImage() {
+  const MAX_RETRIES_PER_IMAGE = 3;
+  const failedImages = [];
+
   while (true) {
     // ✅ Stop condition (single exit point)
     if (!isRunning || currentImageIndex >= totalImages) {
       await clearProgress();
+
+      // Log summary of failed images at the end
+      if (failedImages.length > 0) {
+        sendLogToPopup(
+          `\n⚠️ Summary: ${failedImages.length} image(s) failed:\n${failedImages.map(f => `  • Image ${f.index + 1}: ${f.error}`).join('\n')}`,
+          "warning",
+        );
+      }
+
       sendLogToPopup("🎉 All images processed!", "success");
       sendMessageToPopup({ action: "COMPLETE" });
       stopGeneration(true);
@@ -337,10 +380,9 @@ async function processNextImage() {
       return;
     }
 
-    await closeTabs();
-    await openWhiskTab();
-
     const imageNumber = currentImageIndex + 1;
+    let imageSuccess = false;
+    let lastError = null;
 
     sendLogToPopup(`\n${"=".repeat(50)}`, "info");
     sendLogToPopup(
@@ -350,87 +392,121 @@ async function processNextImage() {
     sendLogToPopup(`${"=".repeat(50)}`, "info");
     sendStatusToPopup(`Processing image ${imageNumber}/${totalImages}...`);
 
-    try {
-      // 🔐 Safe storage read with retry
-      const { images, prompts, sceneImage, styleImage } =
-        await getStorageDataSafely(currentImageIndex);
+    // RETRY LOOP for each image
+    for (let retry = 0; retry < MAX_RETRIES_PER_IMAGE; retry++) {
+      try {
+        if (retry > 0) {
+          sendLogToPopup(`🔄 Retry ${retry}/${MAX_RETRIES_PER_IMAGE - 1} for image ${imageNumber}`, "warning");
+          await closeTabs();
+        }
 
-      const currentImage = images[currentImageIndex];
-      const tabId = whiskTab;
+        if (!whiskTab) {
+          await closeTabs();
+          await openWhiskTab();
+        }
 
-      const key = generateKey();
-      const taskKey = `task_${key}`;
+        // 🔐 Safe storage read with retry
+        const { images, prompts, sceneImage, styleImage } =
+          await getStorageDataSafely(currentImageIndex);
 
-      sendLogToPopup(
-        `\n🧪 Processing batch of ${promptCounts} prompt(s)...`,
-        "info",
-      );
+        const currentImage = images[currentImageIndex];
+        const tabId = whiskTab;
 
-      await chrome.storage.session.set({
-        [taskKey]: {
-          tabId,
-          imageIndex: currentImageIndex,
-          totalPrompts: promptCounts,
-          status: "pending",
-          createdAt: Date.now(),
-        },
-      });
+        const key = generateKey();
+        const taskKey = `task_${key}`;
 
-      chrome.tabs.sendMessage(tabId, {
-        action: "GENERATE_IMAGE_BATCH",
-        data: {
-          image: currentImage,
-          sceneImage: sceneImage || null,
-          styleImage: styleImage || null,
-          prompts,
-          imageIndex: currentImageIndex,
-          imageName: currentImage.name,
-          key,
-        },
-      });
-
-      const result = await waitForTask(key);
-
-      if (!result.success) {
         sendLogToPopup(
-          `⚠️ Batch failed for image ${imageNumber}. Moving to next image.`,
-          "warning",
+          `\n🧪 Processing batch of ${promptCounts} prompt(s)...`,
+          "info",
         );
-      } else {
-        sendLogToPopup(
-          `✅ Batch complete! (${promptCounts} variations)`,
-          "success",
-        );
-        // ✨ REPORT USAGE ✨
-        if (socket && socket.connected) {
-          socket.emit("task_complete", { count: 1 });
-          // Wait slightly for limit check?
-          await sleep(500);
+
+        await chrome.storage.session.set({
+          [taskKey]: {
+            tabId,
+            imageIndex: currentImageIndex,
+            totalPrompts: promptCounts,
+            status: "pending",
+            createdAt: Date.now(),
+          },
+        });
+
+        chrome.tabs.sendMessage(tabId, {
+          action: "GENERATE_IMAGE_BATCH",
+          data: {
+            image: currentImage,
+            sceneImage: sceneImage || null,
+            styleImage: styleImage || null,
+            prompts,
+            imageIndex: currentImageIndex,
+            imageName: currentImage.name,
+            key,
+          },
+        });
+
+        const result = await waitForTask(key);
+
+        if (!result.success) {
+          throw new Error(result.error || "Batch processing failed");
+        } else {
+          sendLogToPopup(
+            `✅ Batch complete! (${promptCounts} variations)`,
+            "success",
+          );
+          // ✨ REPORT USAGE ✨
+          if (socket && socket.connected) {
+            socket.emit("task_complete", { count: 1 });
+            // Wait slightly for limit check?
+            await sleep(500);
+          }
+        }
+
+        await clearSessionTasks();
+        imageSuccess = true;
+        break; // Success, exit retry loop
+
+      } catch (error) {
+        lastError = error;
+        sendLogToPopup(`⚠️ Attempt ${retry + 1} failed: ${error.message}`, "warning");
+
+        // Check if error is fatal (e.g., login required)
+        if (error.message.includes("LOGIN_REQUIRED")) {
+          sendLogToPopup("❌ Fatal error: Login required. Please log in and restart.", "error");
+          sendErrorToPopup("Please log into Google and restart generation");
+          stopGeneration();
+          return;
+        }
+
+        if (retry < MAX_RETRIES_PER_IMAGE - 1) {
+          const backoffTime = 2000 * (retry + 1); // Exponential backoff
+          sendLogToPopup(`⏳ Waiting ${backoffTime}ms before retry...`, "info");
+          await sleep(backoffTime);
         }
       }
+    }
 
-      await clearSessionTasks();
-
-      // ✅ Move to next image
-      currentImageIndex++;
-      await saveProgress();
-      imageDownloadSet.clear();
-
-      if (currentImageIndex < totalImages) {
-        sendLogToPopup("⏳ Preparing for next image...", "info");
-        await sleep(3000);
-      }
-
-      // 🔁 loop continues naturally
-    } catch (error) {
+    // After all retries
+    if (!imageSuccess) {
+      failedImages.push({
+        index: currentImageIndex,
+        error: lastError?.message || "Unknown error"
+      });
       sendLogToPopup(
-        `❌ Error processing image ${imageNumber}: ${error.message}`,
+        `❌ Image ${imageNumber} failed after ${MAX_RETRIES_PER_IMAGE} attempts. Continuing to next image...`,
         "error",
       );
-      sendErrorToPopup(error.message);
-      stopGeneration();
-      return;
     }
+
+    // ✅ Move to next image regardless of success/failure
+    currentImageIndex++;
+    await saveProgress();
+    imageDownloadSet.clear();
+
+    if (currentImageIndex < totalImages) {
+      sendLogToPopup("⏳ Preparing for next image...", "info");
+      await sleep(3000);
+    }
+
+    // 🔁 loop continues naturally
   }
 }
 

@@ -32,7 +32,7 @@ if (window.location.href.includes('/extension-callback')) {
       setTimeout(() => {
         // We can't always close tabs we didn't open script-wise, but often we can if opened by extension
         // chrome.runtime.sendMessage({ action: 'CLOSE_TAB' });
-      }, 2000);
+      }, 5000);
     });
   }
 }
@@ -146,6 +146,26 @@ class WhiskProvider extends AutomationProvider {
 
   // NEW: Batch processing method
   async generateImageBatch(data) {
+    // Check if we're on the correct page
+    if (window.location.href.includes('accounts.google.com') ||
+      window.location.href.includes('/signin')) {
+      const error = new Error("LOGIN_REQUIRED: Page redirected to Google login");
+      log(error.message, "error");
+      chrome.runtime.sendMessage({
+        action: "TASK_ERROR",
+        error: {
+          message: error.message,
+          stack: error.stack,
+          url: window.location.href
+        },
+        data: {
+          imageIndex: data.imageIndex,
+          key: data.key
+        },
+      });
+      return;
+    }
+
     if (this.isProcessing) {
       log("Already processing, skipping...", "warning");
       return;
@@ -225,11 +245,13 @@ class WhiskProvider extends AutomationProvider {
 
     } catch (error) {
       log(`❌ Batch Error: ${error.message}`, "error");
+      log(`Stack trace: ${error.stack}`, "error");
       chrome.runtime.sendMessage({
         action: "TASK_ERROR",
         error: {
           message: error.message || "Unknown error",
-          stack: error.stack
+          stack: error.stack,
+          url: window.location.href // Include URL for debugging
         },
         data: {
           imageIndex: data.imageIndex,
