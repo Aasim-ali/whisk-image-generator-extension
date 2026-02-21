@@ -3,32 +3,12 @@ import Layout from '../components/Layout';
 import PlanDialog from '../components/PlanDialog';
 import { usePlans } from '../hooks/usePlans';
 import {
-    Box,
-    Button,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    IconButton,
-    Typography,
-    Chip,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    DialogContentText,
-    Alert,
-    Snackbar,
-    CircularProgress,
+    Box, Button, Paper, Table, TableBody, TableCell,
+    TableContainer, TableHead, TableRow, IconButton,
+    Typography, Chip, Dialog, DialogTitle, DialogContent,
+    DialogActions, DialogContentText, Alert, Snackbar, CircularProgress,
 } from '@mui/material';
-import {
-    Add as AddIcon,
-    Edit as EditIcon,
-    Delete as DeleteIcon,
-} from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 
 export default function Plans() {
     const { plans, loading, error, fetchPlans, createPlan, updatePlan, deletePlan } = usePlans();
@@ -38,26 +18,11 @@ export default function Plans() {
     const [planToDelete, setPlanToDelete] = useState(null);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-    useEffect(() => {
-        fetchPlans();
-    }, [fetchPlans]);
+    useEffect(() => { fetchPlans(); }, [fetchPlans]);
+    useEffect(() => { if (error) showSnackbar(error, 'error'); }, [error]);
 
-    // Show error from hook if it occurs
-    useEffect(() => {
-        if (error) {
-            showSnackbar(error, 'error');
-        }
-    }, [error]);
-
-    const handleCreatePlan = () => {
-        setSelectedPlan(null);
-        setDialogOpen(true);
-    };
-
-    const handleEditPlan = (plan) => {
-        setSelectedPlan(plan);
-        setDialogOpen(true);
-    };
+    const handleCreatePlan = () => { setSelectedPlan(null); setDialogOpen(true); };
+    const handleEditPlan = (plan) => { setSelectedPlan(plan); setDialogOpen(true); };
 
     const handleSavePlan = async (planData) => {
         let result;
@@ -68,16 +33,10 @@ export default function Plans() {
             result = await createPlan(planData);
             if (result.success) showSnackbar('Plan created successfully', 'success');
         }
-
-        if (result.success) {
-            setDialogOpen(false);
-        }
+        if (result.success) setDialogOpen(false);
     };
 
-    const handleDeleteClick = (plan) => {
-        setPlanToDelete(plan);
-        setDeleteDialogOpen(true);
-    };
+    const handleDeleteClick = (plan) => { setPlanToDelete(plan); setDeleteDialogOpen(true); };
 
     const handleConfirmDelete = async () => {
         const result = await deletePlan(planToDelete.id);
@@ -88,113 +47,138 @@ export default function Plans() {
         }
     };
 
-    const showSnackbar = (message, severity) => {
-        setSnackbar({ open: true, message, severity });
-    };
-
-    const handleCloseSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false });
-    };
+    const showSnackbar = (message, severity) => setSnackbar({ open: true, message, severity });
+    const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
     return (
         <Layout>
             <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography variant="h4" component="h1">
-                        Subscription Plans
-                    </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+                    <Box>
+                        <Typography variant="h4" fontWeight={700}>Subscription Plans</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            Manage pricing plans and features
+                        </Typography>
+                    </Box>
                     <Button
                         variant="contained"
                         startIcon={<AddIcon />}
                         onClick={handleCreatePlan}
+                        sx={{ flexShrink: 0 }}
                     >
                         Add Plan
                     </Button>
                 </Box>
 
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell><strong>Name</strong></TableCell>
-                                <TableCell><strong>Price</strong></TableCell>
-                                <TableCell><strong>Credits</strong></TableCell>
-                                <TableCell><strong>Limits</strong></TableCell>
-                                <TableCell><strong>Features</strong></TableCell>
-                                <TableCell align="right"><strong>Actions</strong></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {loading ? (
+                <Paper sx={{ overflow: 'hidden' }}>
+                    <TableContainer>
+                        <Table>
+                            <TableHead>
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                                        <CircularProgress size={40} />
-                                    </TableCell>
+                                    <TableCell>Plan Name</TableCell>
+                                    <TableCell>Price</TableCell>
+                                    <TableCell>Credits</TableCell>
+                                    <TableCell>Limits</TableCell>
+                                    <TableCell>Features</TableCell>
+                                    <TableCell align="right">Actions</TableCell>
                                 </TableRow>
-                            ) : plans.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} align="center">
-                                        <Typography variant="body2" color="text.secondary">
-                                            No plans found. Create your first plan to get started.
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                plans.map((plan) => (
-                                    <TableRow key={plan.id} hover>
-                                        <TableCell>{plan.name}</TableCell>
-                                        <TableCell>
-                                            {plan.currency} {(plan.price / 100).toFixed(2)}
+                            </TableHead>
+                            <TableBody>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                            <CircularProgress size={32} sx={{ color: '#f5c518' }} />
                                         </TableCell>
-                                        <TableCell>{plan.credits}</TableCell>
+                                    </TableRow>
+                                ) : plans.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                No plans found. Create your first plan to get started.
+                                            </Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : plans.map((plan) => (
+                                    <TableRow key={plan.id}>
+                                        <TableCell>
+                                            <Typography fontWeight={600} fontSize="0.875rem">{plan.name}</Typography>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Typography fontWeight={700} color="#f5c518" fontSize="0.9rem">
+                                                {plan.currency} {(plan.price / 100).toFixed(2)}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Box component="span" sx={{
+                                                px: 1.5, py: 0.4,
+                                                bgcolor: 'rgba(245,197,24,0.12)',
+                                                color: '#f5c518',
+                                                borderRadius: '6px',
+                                                fontSize: '0.8rem',
+                                                fontWeight: 700,
+                                            }}>
+                                                {plan.credits}
+                                            </Box>
+                                        </TableCell>
                                         <TableCell>
                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                <Typography variant="caption">Devices: {plan.maxDevices || 1}</Typography>
-                                                <Typography variant="caption">Daily: {plan.dailyLimit || 100}</Typography>
+                                                <Box component="span" sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+                                                    📱 {plan.maxDevices || 1} devices
+                                                </Box>
+                                                <Box component="span" sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+                                                    📅 {plan.dailyLimit || 100}/day
+                                                </Box>
                                             </Box>
                                         </TableCell>
                                         <TableCell>
                                             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                                                {plan.features && plan.features.length > 0 ? (
-                                                    plan.features.map((feature, index) => (
-                                                        <Chip
-                                                            key={index}
-                                                            label={feature}
-                                                            size="small"
-                                                            variant="outlined"
-                                                        />
-                                                    ))
-                                                ) : (
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        No features
-                                                    </Typography>
+                                                {plan.features?.length > 0 ? plan.features.map((feature, i) => (
+                                                    <Chip
+                                                        key={i}
+                                                        label={feature}
+                                                        size="small"
+                                                        sx={{
+                                                            bgcolor: 'rgba(124,106,247,0.12)',
+                                                            color: '#7c6af7',
+                                                            border: '1px solid rgba(124,106,247,0.2)',
+                                                            fontSize: '0.72rem',
+                                                        }}
+                                                    />
+                                                )) : (
+                                                    <Typography variant="body2" color="text.secondary" fontSize="0.8rem">—</Typography>
                                                 )}
                                             </Box>
                                         </TableCell>
                                         <TableCell align="right">
                                             <IconButton
-                                                color="primary"
                                                 onClick={() => handleEditPlan(plan)}
                                                 size="small"
+                                                sx={{
+                                                    color: '#3b82f6',
+                                                    '&:hover': { bgcolor: 'rgba(59,130,246,0.1)' },
+                                                }}
                                             >
-                                                <EditIcon />
+                                                <EditIcon fontSize="small" />
                                             </IconButton>
                                             <IconButton
-                                                color="error"
                                                 onClick={() => handleDeleteClick(plan)}
                                                 size="small"
+                                                sx={{
+                                                    color: '#ef4444',
+                                                    '&:hover': { bgcolor: 'rgba(239,68,68,0.1)' },
+                                                    ml: 0.5,
+                                                }}
                                             >
-                                                <DeleteIcon />
+                                                <DeleteIcon fontSize="small" />
                                             </IconButton>
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Paper>
 
-                {/* Plan Dialog */}
                 <PlanDialog
                     open={dialogOpen}
                     onClose={() => setDialogOpen(false)}
@@ -202,38 +186,26 @@ export default function Plans() {
                     onSave={handleSavePlan}
                 />
 
-                {/* Delete Confirmation Dialog */}
-                <Dialog
-                    open={deleteDialogOpen}
-                    onClose={() => setDeleteDialogOpen(false)}
-                >
-                    <DialogTitle>Confirm Delete</DialogTitle>
+                <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+                    <DialogTitle sx={{ fontWeight: 700 }}>Confirm Delete</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Are you sure you want to delete the plan "{planToDelete?.name}"? This
-                            action cannot be undone.
+                            Are you sure you want to delete <strong>"{planToDelete?.name}"</strong>? This action cannot be undone.
                         </DialogContentText>
                     </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                            Delete
-                        </Button>
+                    <DialogActions sx={{ px: 3, pb: 2 }}>
+                        <Button onClick={() => setDeleteDialogOpen(false)} variant="outlined" sx={{ borderColor: 'rgba(255,255,255,0.1)' }}>Cancel</Button>
+                        <Button onClick={handleConfirmDelete} color="error" variant="contained">Delete</Button>
                     </DialogActions>
                 </Dialog>
 
-                {/* Snackbar for notifications */}
                 <Snackbar
                     open={snackbar.open}
-                    autoHideDuration={6000}
+                    autoHideDuration={4000}
                     onClose={handleCloseSnackbar}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    <Alert
-                        onClose={handleCloseSnackbar}
-                        severity={snackbar.severity}
-                        sx={{ width: '100%' }}
-                    >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%', borderRadius: 2 }}>
                         {snackbar.message}
                     </Alert>
                 </Snackbar>

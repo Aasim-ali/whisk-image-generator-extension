@@ -3,38 +3,42 @@ import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import {
     Box,
     Drawer,
-    AppBar,
-    Toolbar,
     List,
     Typography,
-    Divider,
-    IconButton,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Button,
+    IconButton,
+    Avatar,
+    Tooltip,
+    Divider,
 } from '@mui/material';
 import {
-    Menu as MenuIcon,
     Dashboard as DashboardIcon,
     People as PeopleIcon,
     Receipt as ReceiptIcon,
     CreditCard as CreditCardIcon,
-    Logout as LogoutIcon,
     Mail as MailIcon,
+    Logout as LogoutIcon,
+    Menu as MenuIcon,
+    Close as CloseIcon,
 } from '@mui/icons-material';
 
-const drawerWidth = 240;
+const drawerWidth = 256;
+
+const menuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', color: '#f5c518' },
+    { text: 'Customers', icon: <PeopleIcon />, path: '/customers', color: '#7c6af7' },
+    { text: 'Transactions', icon: <ReceiptIcon />, path: '/transactions', color: '#22c55e' },
+    { text: 'Plans', icon: <CreditCardIcon />, path: '/plans', color: '#3b82f6' },
+    { text: 'Contacts', icon: <MailIcon />, path: '/contacts', color: '#f59e0b' },
+];
 
 export default function Layout({ children }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
 
     const handleLogout = () => {
         localStorage.removeItem('adminToken');
@@ -42,129 +46,186 @@ export default function Layout({ children }) {
         navigate('/login');
     };
 
-    const menuItems = [
-        { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-        { text: 'Customers', icon: <PeopleIcon />, path: '/customers' },
-        { text: 'Transactions', icon: <ReceiptIcon />, path: '/transactions' },
-        { text: 'Plans', icon: <CreditCardIcon />, path: '/plans' },
-        { text: 'Contacts', icon: <MailIcon />, path: '/contacts' },
-    ];
+    const currentPage = menuItems.find(item => item.path === location.pathname);
 
-    const drawer = (
-        <div>
-            <Toolbar />
-            <Divider />
-            <List>
-                {menuItems.map((item) => (
-                    <ListItem key={item.text} disablePadding>
-                        <ListItemButton
-                            component={RouterLink}
-                            to={item.path}
-                            selected={location.pathname === item.path}
-                            onClick={() => setMobileOpen(false)}
-                            sx={{
-                                '&.Mui-selected': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                },
-                                '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                },
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
-                            <ListItemText primary={item.text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+    const SidebarContent = () => (
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', py: 2 }}>
+            {/* Logo */}
+            <Box sx={{ px: 3, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{
+                    width: 40, height: 40,
+                    bgcolor: '#f5c518',
+                    borderRadius: '10px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 800, fontSize: '1.1rem', color: '#0f0f13',
+                    boxShadow: '0 0 20px rgba(245,197,24,0.35)',
+                }}>
+                    W
+                </Box>
+                <Box>
+                    <Typography fontWeight={700} fontSize="0.95rem" color="text.primary">
+                        Whisk Admin
+                    </Typography>
+                    <Typography fontSize="0.72rem" color="text.secondary">
+                        Control Panel
+                    </Typography>
+                </Box>
+            </Box>
+
+            <Divider sx={{ mb: 2 }} />
+
+            {/* Nav Items */}
+            <List sx={{ px: 1.5, flexGrow: 1 }}>
+                {menuItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                        <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+                            <ListItemButton
+                                component={RouterLink}
+                                to={item.path}
+                                onClick={() => setMobileOpen(false)}
+                                sx={{
+                                    borderRadius: '10px',
+                                    px: 2,
+                                    py: 1.1,
+                                    position: 'relative',
+                                    backgroundColor: isActive ? 'rgba(245,197,24,0.1)' : 'transparent',
+                                    '&:hover': {
+                                        backgroundColor: isActive
+                                            ? 'rgba(245,197,24,0.15)'
+                                            : 'rgba(255,255,255,0.04)',
+                                    },
+                                    '&::before': isActive ? {
+                                        content: '""',
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: '20%',
+                                        height: '60%',
+                                        width: '3px',
+                                        borderRadius: '0 3px 3px 0',
+                                        backgroundColor: '#f5c518',
+                                    } : {},
+                                }}
+                            >
+                                <ListItemIcon sx={{
+                                    minWidth: 36,
+                                    color: isActive ? item.color : '#8892a4',
+                                    '& .MuiSvgIcon-root': { fontSize: '1.2rem' },
+                                }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={item.text}
+                                    primaryTypographyProps={{
+                                        fontSize: '0.875rem',
+                                        fontWeight: isActive ? 600 : 400,
+                                        color: isActive ? '#e2e8f0' : '#8892a4',
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    );
+                })}
             </List>
-        </div>
+
+            {/* Logout */}
+            <Box sx={{ px: 2.5, pt: 2, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <ListItemButton
+                    onClick={handleLogout}
+                    sx={{
+                        borderRadius: '10px',
+                        px: 2,
+                        py: 1,
+                        '&:hover': { backgroundColor: 'rgba(239,68,68,0.1)' },
+                    }}
+                >
+                    <ListItemIcon sx={{ minWidth: 36, color: '#ef4444', '& .MuiSvgIcon-root': { fontSize: '1.2rem' } }}>
+                        <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="Logout"
+                        primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500, color: '#ef4444' }}
+                    />
+                </ListItemButton>
+            </Box>
+        </Box>
     );
 
     return (
-        <Box sx={{ display: 'flex' }}>
-            <AppBar
-                position="fixed"
+        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+            {/* Mobile Drawer */}
+            <Drawer
+                variant="temporary"
+                open={mobileOpen}
+                onClose={() => setMobileOpen(false)}
+                ModalProps={{ keepMounted: true }}
                 sx={{
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    ml: { sm: `${drawerWidth}px` },
-                    bgcolor: 'primary.main', // Match color
+                    display: { xs: 'block', md: 'none' },
+                    '& .MuiDrawer-paper': { width: drawerWidth, bgcolor: '#13131c' },
                 }}
             >
-                <Toolbar>
+                <SidebarContent />
+            </Drawer>
+
+            {/* Desktop Drawer */}
+            <Drawer
+                variant="permanent"
+                sx={{
+                    display: { xs: 'none', md: 'block' },
+                    '& .MuiDrawer-paper': {
+                        width: drawerWidth,
+                        bgcolor: '#13131c',
+                        borderRight: '1px solid rgba(255,255,255,0.06)',
+                    },
+                }}
+                open
+            >
+                <SidebarContent />
+            </Drawer>
+
+            {/* Main Content */}
+            <Box sx={{ flexGrow: 1, ml: { md: `${drawerWidth}px` }, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+                {/* Top Header Bar */}
+                <Box sx={{
+                    px: { xs: 2, sm: 3 },
+                    py: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    bgcolor: '#13131c',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 100,
+                }}>
                     <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
+                        sx={{ display: { md: 'none' }, color: 'text.secondary' }}
+                        onClick={() => setMobileOpen(true)}
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                        Whisk Image Generator
-                    </Typography>
-                    <Button
-                        color="inherit"
-                        startIcon={<LogoutIcon />}
-                        onClick={handleLogout}
-                    >
-                        Logout
-                    </Button>
-                </Toolbar>
-            </AppBar>
-            <Box
-                component="nav"
-                sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-                aria-label="mailbox folders"
-            >
-                {/* Mobile drawer */}
-                <Drawer
-                    variant="temporary"
-                    open={mobileOpen}
-                    onClose={handleDrawerToggle}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}
-                    sx={{
-                        display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': {
-                            boxSizing: 'border-box',
-                            width: drawerWidth,
-                            bgcolor: 'primary.main', // Match color
-                            color: 'white',
-                        },
-                    }}
-                >
-                    {drawer}
-                </Drawer>
-                {/* Desktop drawer */}
-                <Drawer
-                    variant="permanent"
-                    sx={{
-                        display: { xs: 'none', sm: 'block' },
-                        '& .MuiDrawer-paper': {
-                            boxSizing: 'border-box',
-                            width: drawerWidth,
-                            bgcolor: 'primary.main', // Match color
-                            color: 'white',
-                            borderRight: 'none',
-                        },
-                    }}
-                    open
-                >
-                    {drawer}
-                </Drawer>
-            </Box>
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    p: 3,
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                }}
-            >
-                <Toolbar />
-                {children}
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Typography fontWeight={700} fontSize="1.1rem">
+                            {currentPage?.text || 'Admin'}
+                        </Typography>
+                        <Typography fontSize="0.75rem" color="text.secondary">
+                            Whisk Image Generator
+                        </Typography>
+                    </Box>
+                    <Tooltip title="Logout">
+                        <IconButton onClick={handleLogout} sx={{
+                            color: 'text.secondary',
+                            '&:hover': { color: '#ef4444', bgcolor: 'rgba(239,68,68,0.08)' },
+                        }}>
+                            <LogoutIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+
+                {/* Page Content */}
+                <Box sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }} className="page-fade-in">
+                    {children}
+                </Box>
             </Box>
         </Box>
     );
