@@ -40,11 +40,17 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
         fetchPlan();
     }, [isOpen, user?.planId]);
 
-    // Close on Escape key
+    // Lock body scroll + close on Escape when modal is open
     useEffect(() => {
         const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
-        if (isOpen) window.addEventListener('keydown', handleKey);
-        return () => window.removeEventListener('keydown', handleKey);
+        if (isOpen) {
+            window.addEventListener('keydown', handleKey);
+            document.body.style.overflow = 'hidden';
+        }
+        return () => {
+            window.removeEventListener('keydown', handleKey);
+            document.body.style.overflow = '';
+        };
     }, [isOpen, onClose]);
 
     const formatDate = (dateStr) => {
@@ -80,15 +86,10 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                         onClick={onClose}
                     />
 
-                    {/* Modal */}
-                    <motion.div
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
+                    {/* Modal — centred in fixed viewport, click-outside via backdrop */}
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
                         <motion.div
-                            className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+                            className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl flex flex-col max-h-[90vh] pointer-events-auto"
                             initial={{ scale: 0.92, y: 20 }}
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0.92, y: 20 }}
@@ -106,7 +107,7 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                                 <X size={16} />
                             </button>
 
-                            <div className="p-8">
+                            <div className="p-8 overflow-y-auto">
                                 {/* User info */}
                                 <div className="flex items-center gap-4 mb-8">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg ${isFreePlan ? 'bg-emerald-100 text-emerald-700' : 'bg-primary text-black'}`}>
@@ -229,7 +230,7 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                                 </Link>
                             </div>
                         </motion.div>
-                    </motion.div>
+                    </div>
                 </>
             )}
         </AnimatePresence>
