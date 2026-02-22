@@ -79,7 +79,7 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                 <>
                     {/* Backdrop */}
                     <motion.div
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 h-[100vh] flex items-center justify-center"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 min-h-screen"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -87,17 +87,19 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                     />
 
                     {/* Modal — centred in fixed viewport, click-outside via backdrop */}
-                    <div className="flex items-center justify-center p-4 pointer-events-none">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
                         <motion.div
                             className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl flex flex-col max-h-[90vh] pointer-events-auto"
-                            initial={{ scale: 0.92, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.92, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                             onClick={(e) => e.stopPropagation()}
+                            role="dialog"
+                            aria-modal="true"
                         >
                             {/* Header gradient band */}
-                            {/* <div className={`h-2 w-full ${isFreePlan ? 'bg-emerald-400' : 'bg-primary'}`} /> */}
+                            <div className={`h-2 w-full ${isFreePlan ? 'bg-emerald-400' : 'bg-primary'}`} />
 
                             {/* Close button */}
                             <button
