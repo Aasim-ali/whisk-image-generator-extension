@@ -79,7 +79,7 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                 <>
                     {/* Backdrop */}
                     <motion.div
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 h-[100vh] flex items-center justify-center"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -87,7 +87,7 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                     />
 
                     {/* Modal — centred in fixed viewport, click-outside via backdrop */}
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                    <div className="flex items-center justify-center p-4 pointer-events-none">
                         <motion.div
                             className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl flex flex-col max-h-[90vh] pointer-events-auto"
                             initial={{ scale: 0.92, y: 20 }}
@@ -97,7 +97,7 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header gradient band */}
-                            <div className={`h-2 w-full ${isFreePlan ? 'bg-emerald-400' : 'bg-primary'}`} />
+                            {/* <div className={`h-2 w-full ${isFreePlan ? 'bg-emerald-400' : 'bg-primary'}`} /> */}
 
                             {/* Close button */}
                             <button
