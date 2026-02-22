@@ -34,6 +34,7 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                 features: plan.features || [],
                 maxDevices: plan.maxDevices || 1,
                 dailyLimit: plan.dailyLimit || 100,
+                durationDays: plan.durationDays || 30,
             });
         } else {
             setFormData({
@@ -44,6 +45,7 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                 features: [],
                 maxDevices: 1,
                 dailyLimit: 100,
+                durationDays: 30,
             });
         }
         setErrors({});
@@ -72,6 +74,7 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                 credits: parseInt(formData.credits, 10),
                 maxDevices: parseInt(formData.maxDevices, 10),
                 dailyLimit: parseInt(formData.dailyLimit, 10),
+                durationDays: parseInt(formData.durationDays, 10) || 30,
             };
             onSave(planData);
         }
@@ -164,6 +167,15 @@ export default function PlanDialog({ open, onClose, plan, onSave }) {
                             value={formData.dailyLimit}
                             onChange={(e) => setFormData({ ...formData, dailyLimit: e.target.value })}
                             fullWidth
+                            InputProps={{ inputProps: { min: 1 } }}
+                        />
+                        <TextField
+                            label="Duration (days)"
+                            type="number"
+                            value={formData.durationDays}
+                            onChange={(e) => setFormData({ ...formData, durationDays: e.target.value })}
+                            fullWidth
+                            helperText="Plan lasts X days"
                             InputProps={{ inputProps: { min: 1 } }}
                         />
                     </Box>

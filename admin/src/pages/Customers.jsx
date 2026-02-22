@@ -47,6 +47,8 @@ export default function Customers() {
                                 <TableRow>
                                     <TableCell>User</TableCell>
                                     <TableCell>Email</TableCell>
+                                    <TableCell>Plan</TableCell>
+                                    <TableCell>Expires</TableCell>
                                     <TableCell>Credits</TableCell>
                                     <TableCell>Joined</TableCell>
                                 </TableRow>
@@ -54,13 +56,13 @@ export default function Customers() {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                                             <CircularProgress size={32} sx={{ color: '#f5c518' }} />
                                         </TableCell>
                                     </TableRow>
                                 ) : users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                                             <Typography variant="body2" color="text.secondary">No customers found</Typography>
                                         </TableCell>
                                     </TableRow>
@@ -86,6 +88,31 @@ export default function Customers() {
                                             </TableCell>
                                             <TableCell sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>
                                                 {user.email}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Box component="span" sx={{
+                                                    px: 1.5, py: 0.4,
+                                                    bgcolor: user.Plan
+                                                        ? 'rgba(124,106,247,0.12)'
+                                                        : 'rgba(255,255,255,0.06)',
+                                                    color: user.Plan ? '#7c6af7' : 'text.secondary',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: 700,
+                                                    border: user.Plan
+                                                        ? '1px solid rgba(124,106,247,0.25)'
+                                                        : '1px solid rgba(255,255,255,0.1)',
+                                                }}>
+                                                    {user.Plan ? user.Plan.name : 'Free Tier'}
+                                                </Box>
+                                            </TableCell>
+                                            <TableCell sx={{ fontSize: '0.82rem', color: 'text.secondary' }}>
+                                                {user.planExpiresAt
+                                                    ? new Date(user.planExpiresAt).toLocaleDateString('en-IN', {
+                                                        year: 'numeric', month: 'short', day: 'numeric'
+                                                    })
+                                                    : '—'
+                                                }
                                             </TableCell>
                                             <TableCell>
                                                 <Box component="span" sx={{

@@ -79,6 +79,7 @@ export default function Plans() {
                                     <TableCell>Price</TableCell>
                                     <TableCell>Credits</TableCell>
                                     <TableCell>Limits</TableCell>
+                                    <TableCell>Users</TableCell>
                                     <TableCell>Features</TableCell>
                                     <TableCell align="right">Actions</TableCell>
                                 </TableRow>
@@ -86,13 +87,13 @@ export default function Plans() {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                        <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                                             <CircularProgress size={32} sx={{ color: '#f5c518' }} />
                                         </TableCell>
                                     </TableRow>
                                 ) : plans.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                        <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                                             <Typography variant="body2" color="text.secondary">
                                                 No plans found. Create your first plan to get started.
                                             </Typography>
@@ -128,6 +129,21 @@ export default function Plans() {
                                                 <Box component="span" sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
                                                     📅 {plan.dailyLimit || 100}/day
                                                 </Box>
+                                                <Box component="span" sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+                                                    ⏳ {plan.durationDays || 30} days
+                                                </Box>
+                                            </Box>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Box component="span" sx={{
+                                                px: 1.5, py: 0.4,
+                                                bgcolor: 'rgba(34,197,94,0.12)',
+                                                color: '#22c55e',
+                                                borderRadius: '6px',
+                                                fontSize: '0.8rem',
+                                                fontWeight: 700,
+                                            }}>
+                                                👥 {plan.dataValues?.userCount ?? plan.userCount ?? 0}
                                             </Box>
                                         </TableCell>
                                         <TableCell>
