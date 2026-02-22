@@ -2,7 +2,7 @@
 import Script from 'next/script';
 import { usePlans } from '../../hooks/usePlans';
 import { useAuth } from '../../hooks/useAuth';
-import { Check, Zap, Star, BadgeCheck } from 'lucide-react';
+import { Check, Zap, Star, BadgeCheck, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Static Free plan definition (matches server free-tier: 5 images/day, 1 device)
@@ -70,8 +70,8 @@ export default function Plans() {
                         {/* ── Free Plan Card (static, always first) ── */}
                         <motion.div
                             className={`relative bg-white rounded-[3rem] p-10 border-2 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${isOnFreePlan && user
-                                    ? 'border-emerald-400 shadow-xl shadow-emerald-100'
-                                    : 'border-gray-100 shadow-lg hover:border-primary/50'
+                                ? 'border-emerald-400 shadow-xl shadow-emerald-100'
+                                : 'border-gray-100 shadow-lg hover:border-primary/50'
                                 }`}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -154,10 +154,10 @@ export default function Plans() {
                                 <motion.div
                                     key={plan.id}
                                     className={`relative bg-white rounded-[3rem] p-10 border-2 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${isCurrentPlan
-                                            ? 'border-emerald-400 shadow-xl shadow-emerald-100'
-                                            : isPopular
-                                                ? 'border-primary shadow-xl shadow-primary/10'
-                                                : 'border-gray-100 shadow-lg hover:border-primary/50'
+                                        ? 'border-emerald-400 shadow-xl shadow-emerald-100'
+                                        : isPopular
+                                            ? 'border-primary shadow-xl shadow-primary/10'
+                                            : 'border-gray-100 shadow-lg hover:border-primary/50'
                                         }`}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -193,15 +193,27 @@ export default function Plans() {
                                         <span className="text-5xl md:text-6xl font-black text-gray-900 tracking-tight">
                                             ₹{plan.price / 100}
                                         </span>
-                                        <span className="text-xl text-gray-500 font-bold">/month</span>
+                                        <span className="text-xl text-gray-500 font-bold">
+                                            {plan.durationDays ? ` / ${plan.durationDays} days` : '/month'}
+                                        </span>
                                     </div>
 
-                                    {/* Credits */}
-                                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-8">
-                                        <Zap size={16} fill="currentColor" />
-                                        <span className="font-black text-gray-900">
-                                            {plan.credits.toLocaleString()} Images/month
-                                        </span>
+                                    {/* Credits + Duration badges */}
+                                    <div className="flex flex-wrap gap-2 mb-8">
+                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10">
+                                            <Zap size={16} fill="currentColor" />
+                                            <span className="font-black text-gray-900">
+                                                {plan.credits.toLocaleString()} Images
+                                            </span>
+                                        </div>
+                                        {plan.durationDays && (
+                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100">
+                                                <Calendar size={14} className="text-gray-500" />
+                                                <span className="font-black text-gray-600 text-sm">
+                                                    {plan.durationDays} Days
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Divider */}
@@ -235,8 +247,8 @@ export default function Plans() {
                                         <button
                                             onClick={() => purchasePlan(plan)}
                                             className={`w-full py-4 px-6 rounded-2xl font-black text-lg transition-all duration-200 shadow-lg ${isPopular
-                                                    ? 'bg-primary text-black hover:shadow-xl hover:shadow-primary/40 hover:scale-[1.02]'
-                                                    : 'bg-gray-900 text-white hover:bg-gray-800 hover:scale-[1.02]'
+                                                ? 'bg-primary text-black hover:shadow-xl hover:shadow-primary/40 hover:scale-[1.02]'
+                                                : 'bg-gray-900 text-white hover:bg-gray-800 hover:scale-[1.02]'
                                                 } active:scale-[0.98]`}
                                         >
                                             Get Started

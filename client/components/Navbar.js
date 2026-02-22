@@ -5,14 +5,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
-import { User, LogOut, CreditCard, Menu, X, ChevronRight } from 'lucide-react';
+import { LogOut, CreditCard, Menu, X, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import SubscriptionModal from './SubscriptionModal';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
+    const [subscriptionOpen, setSubscriptionOpen] = useState(false);
     const pathname = usePathname();
     const { user, logout } = useAuth();
 
@@ -87,14 +89,13 @@ export default function Navbar() {
                                             <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Signed in as</p>
                                             <p className="text-sm font-black text-gray-900 truncate">{user.email}</p>
                                         </div>
-                                        <Link
-                                            href="/plans"
-                                            onClick={() => setProfileOpen(false)}
-                                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors"
+                                        <button
+                                            onClick={() => { setProfileOpen(false); setSubscriptionOpen(true); }}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors"
                                         >
                                             <CreditCard size={18} />
                                             Subscription
-                                        </Link>
+                                        </button>
                                         <button
                                             onClick={() => { logout(); setProfileOpen(false); }}
                                             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 text-sm font-black text-red-500 hover:text-red-600 transition-colors"
@@ -170,13 +171,23 @@ export default function Navbar() {
 
                             <div className="flex flex-col gap-3 pt-4 border-t border-gray-100">
                                 {user ? (
-                                    <Button
-                                        onClick={() => { logout(); setIsOpen(false); }}
-                                        variant="destructive"
-                                        className="h-14 font-black rounded-2xl shadow-lg shadow-red-500/10"
-                                    >
-                                        Sign Out
-                                    </Button>
+                                    <>
+                                        <Button
+                                            onClick={() => { setIsOpen(false); setSubscriptionOpen(true); }}
+                                            variant="outline"
+                                            className="h-14 font-black rounded-2xl shadow-sm flex items-center gap-2"
+                                        >
+                                            <CreditCard size={18} />
+                                            Subscription
+                                        </Button>
+                                        <Button
+                                            onClick={() => { logout(); setIsOpen(false); }}
+                                            variant="destructive"
+                                            className="h-14 font-black rounded-2xl shadow-lg shadow-red-500/10"
+                                        >
+                                            Sign Out
+                                        </Button>
+                                    </>
                                 ) : (
                                     <>
                                         <Button asChild variant="outline" className="h-14 font-black rounded-2xl shadow-sm">
@@ -192,6 +203,13 @@ export default function Navbar() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Subscription Modal */}
+            <SubscriptionModal
+                isOpen={subscriptionOpen}
+                onClose={() => setSubscriptionOpen(false)}
+                user={user}
+            />
         </nav>
     );
 }
