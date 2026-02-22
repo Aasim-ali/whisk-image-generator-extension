@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BadgeCheck, Calendar, Zap, Crown, Clock, AlertCircle, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -15,6 +16,10 @@ const FREE_PLAN = {
 export default function SubscriptionModal({ isOpen, onClose, user }) {
     const [planDetails, setPlanDetails] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    // Wait for client mount before using portal (SSR safety)
+    useEffect(() => { setMounted(true); }, []);
 
     const isFreePlan = !user?.planId;
 
@@ -69,7 +74,9 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
     const plan = isFreePlan ? FREE_PLAN : planDetails;
     const accentColor = isFreePlan ? 'emerald' : 'yellow';
 
-    return (
+    if (!mounted) return null;
+
+    const modalContent = (
         <AnimatePresence>
             {isOpen && (
                 <>
@@ -184,10 +191,10 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                                         {/* Expiry banner — paid plans only */}
                                         {!isFreePlan && expiryDate && (
                                             <div className={`flex items-start gap-3 p-4 rounded-2xl ${isExpired
-                                                    ? 'bg-red-50 border border-red-100'
-                                                    : isExpiringSoon
-                                                        ? 'bg-amber-50 border border-amber-100'
-                                                        : 'bg-gray-50'
+                                                ? 'bg-red-50 border border-red-100'
+                                                : isExpiringSoon
+                                                    ? 'bg-amber-50 border border-amber-100'
+                                                    : 'bg-gray-50'
                                                 }`}>
                                                 {(isExpired || isExpiringSoon)
                                                     ? <AlertCircle size={15} className={`mt-0.5 flex-shrink-0 ${isExpired ? 'text-red-400' : 'text-amber-400'}`} />
@@ -240,8 +247,8 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
                                     href="/plans"
                                     onClick={onClose}
                                     className={`w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl font-black text-sm transition-all duration-200 active:scale-[0.98] ${isFreePlan
-                                            ? 'bg-primary text-black hover:brightness-95 shadow-lg shadow-primary/20'
-                                            : 'bg-gray-900 text-white hover:bg-gray-800'
+                                        ? 'bg-primary text-black hover:brightness-95 shadow-lg shadow-primary/20'
+                                        : 'bg-gray-900 text-white hover:bg-gray-800'
                                         }`}
                                 >
                                     {isFreePlan ? 'Upgrade Plan' : 'View All Plans'}
@@ -254,4 +261,6 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
             )}
         </AnimatePresence>
     );
+
+    return createPortal(modalContent, document.body);
 }
