@@ -1,6 +1,6 @@
 export const metadata = {
-    title: 'Authentication Callback | Whisk Automator',
-    description: 'Completing your authentication process. Just a moment while we redirect you to Whisk Automator.',
+    title: 'Authentication Callback | Whiskbot',
+    description: 'Completing your authentication process. Just a moment while we redirect you to Whiskbot.',
     robots: {
         index: false,
         follow: false,

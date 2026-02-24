@@ -1,6 +1,6 @@
 export const metadata = {
     title: 'Pricing & Plans | Get Started with Bulk AI Automation',
-    description: 'Compare Whisk Automator plans. Choose the best premium bulk AI image generation package for your creative workflow. Start for free today.',
+    description: 'Compare Whiskbot plans. Choose the best premium bulk AI image generation package for your creative workflow. Start for free today.',
     alternates: {
         canonical: '/plans',
     },

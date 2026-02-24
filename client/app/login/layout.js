@@ -1,6 +1,6 @@
 export const metadata = {
-    title: 'Login | Access Whisk Automator',
-    description: 'Sign in to Whisk Automator to access your AI image generation dashboard, manage templates, and monitor bulk processing.',
+    title: 'Login | Access Whiskbot',
+    description: 'Sign in to Whiskbot to access your AI image generation dashboard, manage templates, and monitor bulk processing.',
     alternates: {
         canonical: '/login',
     },

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -38,11 +39,16 @@ export default function Navbar() {
         )}>
             <div className="container mx-auto px-4 flex justify-between items-center">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-3 transition-transform active:scale-95 group">
-                    <span className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-black text-xl font-black shadow-lg shadow-primary/20 group-hover:rotate-12 transition-transform duration-300">
-                        W
-                    </span>
-                    <span className="text-xl font-black text-gray-900 tracking-tight">Whisk</span>
+                <Link href="/" className="flex items-center transition-transform active:scale-95 group">
+                    <Image
+                        src="/logo.png"
+                        alt="Whiskbot Logo"
+                        width={160}
+                        height={90}
+                        className="object-contain mix-blend-multiply"
+                        style={{ width: '160px', height: '90px' }}
+                        priority
+                    />
                 </Link>
 
                 {/* Desktop Nav */}

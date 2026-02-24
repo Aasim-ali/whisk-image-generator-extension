@@ -816,6 +816,8 @@ window.addEventListener("click", (e) => {
 openAddTemplateBtn.addEventListener("click", () => openEditModalFunc());
 closeEditModal.addEventListener("click", closeEditModalFunc);
 cancelEditBtn.addEventListener("click", closeEditModalFunc);
+saveTemplateBtn.addEventListener("click", saveTemplate);
+addTemplatePromptBtn.addEventListener("click", () => addTemplatePromptInput(""));
 // ----------------------------------------------------------------------------
 // AUTHENTICATION & SOCKET.IO
 // ----------------------------------------------------------------------------

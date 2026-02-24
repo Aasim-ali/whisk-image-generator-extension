@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Mail, Github, Twitter, Linkedin, Heart, ExternalLink } from 'lucide-react';
 import { cn } from "@/lib/utils";
@@ -54,11 +55,15 @@ export default function Footer() {
                     {/* Brand Info */}
                     <div className="col-span-2 lg:col-span-2 space-y-8">
                         <div>
-                            <Link href="/" className="inline-flex items-center gap-3 transition-transform active:scale-95 group">
-                                <span className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-black text-2xl font-black shadow-xl shadow-primary/20 transition-transform group-hover:rotate-12 duration-500">
-                                    W
-                                </span>
-                                <span className="text-2xl font-black text-gray-900 tracking-tight">Whisk</span>
+                            <Link href="/" className="inline-flex items-center transition-transform active:scale-95 group">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Whiskbot Logo"
+                                    width={180}
+                                    height={180}
+                                    className="object-contain mix-blend-multiply"
+                                    style={{ width: '180px', height: 'auto' }}
+                                />
                             </Link>
                             <p className="mt-6 text-gray-500 font-bold text-sm leading-relaxed max-w-xs">
                                 The #1 one-click bulk Google Whisk AI image generator.
@@ -143,7 +148,7 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="border-t border-gray-100 py-12 flex flex-col md:flex-row justify-between items-center gap-8">
                     <p className="text-gray-400 font-bold text-[11px] uppercase tracking-widest order-2 md:order-1">
-                        © {currentYear} WhiskAutomator. All rights reserved.
+                        © {currentYear} Whiskbot. All rights reserved.
                     </p>
 
                     <div className="flex items-center gap-8 order-1 md:order-2">

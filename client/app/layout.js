@@ -15,8 +15,8 @@ const inter = Inter({
 export const metadata = {
   metadataBase: new URL('https://whisk-image-generator-extension.vercel.app'),
   title: {
-    default: 'Whisk Automator - One-Click Bulk Google Whisk AI Image Generator',
-    template: '%s | Whisk Automator'
+    default: 'Whiskbot - One-Click Bulk Google Whisk AI Image Generator',
+    template: '%s | Whiskbot'
   },
   description: 'The #1 professional bulk AI image generator for Google Whisk. Automate your creative workflow, generate thousands of professional product images instantly, and boost your e-commerce efficiency.',
   keywords: [
@@ -24,7 +24,7 @@ export const metadata = {
     'Bulk AI Image Generator',
     'Google Whisk AI automation',
     'automated product photography',
-    'Whisk Automator',
+    'Whiskbot',
     'bulk AI image creation',
     'Google Whisk extension',
     'automated creative workflow',
@@ -33,7 +33,7 @@ export const metadata = {
   ],
   authors: [{ name: 'Whisk Team', url: 'https://whisk-image-generator-extension.vercel.app' }],
   creator: 'Whisk Team',
-  publisher: 'Whisk Automator',
+  publisher: 'Whiskbot',
   alternates: {
     canonical: '/',
   },
@@ -43,10 +43,10 @@ export const metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'Whisk Automator - #1 Bulk Google Whisk AI Automator',
+    title: 'Whiskbot - #1 Bulk Google Whisk AI Automator',
     description: 'Generate hundreds of professional product images with one click. The ultimate automation tool for Google Whisk specialists.',
     url: 'https://whisk-image-generator-extension.vercel.app',
-    siteName: 'Whisk Automator',
+    siteName: 'Whiskbot',
     locale: 'en_US',
     type: 'website',
     images: [
@@ -54,13 +54,13 @@ export const metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Whisk Automator - Bulk AI Product Photography Automation',
+        alt: 'Whiskbot - Bulk AI Product Photography Automation',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Whisk Automator - One-Click Bulk AI Automation',
+    title: 'Whiskbot - One-Click Bulk AI Automation',
     description: 'Automate your creative workflow. Generate thousands of high-quality images for Google Whisk instantly.',
     creator: '@whisk_ai',
     images: ['/og-image.jpg'],
@@ -93,7 +93,7 @@ export default function RootLayout({ children }) {
     {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      name: 'Whisk Automator',
+      name: 'Whiskbot',
       url: 'https://whisk-image-generator-extension.vercel.app',
       logo: 'https://whisk-image-generator-extension.vercel.app/favicon.ico',
       sameAs: [
@@ -104,7 +104,7 @@ export default function RootLayout({ children }) {
     {
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
-      name: 'Whisk Automator',
+      name: 'Whiskbot',
       applicationCategory: 'DesignApplication',
       operatingSystem: 'Chrome, Web',
       offers: {

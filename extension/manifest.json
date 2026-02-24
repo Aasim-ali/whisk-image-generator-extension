@@ -12,8 +12,7 @@
   ],
   "host_permissions": [
     "https://labs.google/*",
-    "https://labs.google/fx/tools/whisk/project",
-    "http://localhost:5000/*"
+    "https://labs.google/fx/tools/whisk/project"
   ],
   "background": {
     "service_worker": "background.js"
@@ -22,8 +21,7 @@
     {
       "matches": [
         "https://labs.google/*",
-        "https://labs.google/fx/tools/whisk/project",
-        "http://localhost:3000/*"
+        "https://labs.google/fx/tools/whisk/project"
       ],
       "js": [
         "content.js"

@@ -94,7 +94,7 @@ export default function HomeClient() {
       name: "Sarah Johnson",
       role: "E-commerce Manager",
       company: "Fashion Forward",
-      content: "WhiskAutomator has completely transformed our product photography workflow. What used to take days now takes hours!",
+      content: "Whiskbot has completely transformed our product photography workflow. What used to take days now takes hours!",
       rating: 5,
       avatar: "SJ"
     },
@@ -142,7 +142,7 @@ export default function HomeClient() {
               transition={{ duration: 0.8 }}
             >
               Generate with <br />
-              <span className="bg-primary px-4 rounded-2xl md:rounded-3xl inline-block mt-2">WhiskAutomator</span>
+              <span className="bg-primary px-4 rounded-2xl md:rounded-3xl inline-block mt-2">Whiskbot</span>
             </motion.h1>
 
             <motion.p
@@ -322,7 +322,7 @@ export default function HomeClient() {
             variants={fadeInUp}
           >
             <h2 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 tracking-tight">Powerful Automation.</h2>
-            <p className="text-gray-500 text-xl font-bold">WhiskAutomator is built for high-volume production with efficiency at its core.</p>
+            <p className="text-gray-500 text-xl font-bold">Whiskbot is built for high-volume production with efficiency at its core.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-10">
@@ -370,7 +370,7 @@ export default function HomeClient() {
               {
                 step: "01",
                 title: "Install Extension",
-                desc: "Add WhiskAutomator to your Chrome browser with one click from the Web Store.",
+                desc: "Add Whiskbot to your Chrome browser with one click from the Web Store.",
                 icon: <Zap size={24} />
               },
               {
@@ -463,18 +463,18 @@ export default function HomeClient() {
             variants={fadeInUp}
           >
             <h2 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 tracking-tight text-center">Questions?</h2>
-            <p className="text-gray-500 text-xl font-bold text-center">Everything you need to know about WhiskAutomator.</p>
+            <p className="text-gray-500 text-xl font-bold text-center">Everything you need to know about Whiskbot.</p>
           </motion.div>
 
           <div className="max-w-4xl mx-auto space-y-6">
             {[
               {
-                q: "Is WhiskAutomator really free?",
-                a: "Yes! WhiskAutomator is 100% free to use for all basic features. We believe in providing the best automation tools for everyone."
+                q: "Is Whiskbot really free?",
+                a: "Yes! Whiskbot is 100% free to use for all basic features. We believe in providing the best automation tools for everyone."
               },
               {
                 q: "Do I need to upload my images?",
-                a: "No. WhiskAutomator works directly with your local files to ensure maximum speed and privacy. We never store or upload your product images."
+                a: "No. Whiskbot works directly with your local files to ensure maximum speed and privacy. We never store or upload your product images."
               },
               {
                 q: "Which browsers are supported?",

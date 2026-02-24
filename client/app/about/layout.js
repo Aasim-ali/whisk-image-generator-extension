@@ -1,6 +1,6 @@
 export const metadata = {
     title: 'About Us | Our Mission & Team',
-    description: 'Learn about Whisk Automator, our mission to democratize creative workflows, and the team behind the #1 bulk AI image generator for Google Whisk.',
+    description: 'Learn about Whiskbot, our mission to democratize creative workflows, and the team behind the #1 bulk AI image generator for Google Whisk.',
     alternates: {
         canonical: '/about',
     },

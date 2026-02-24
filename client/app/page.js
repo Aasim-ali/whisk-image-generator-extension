@@ -8,10 +8,10 @@ export default function Page() {
             mainEntity: [
                 {
                     '@type': 'Question',
-                    name: 'Is WhiskAutomator really free?',
+                    name: 'Is Whiskbot really free?',
                     acceptedAnswer: {
                         '@type': 'Answer',
-                        text: 'Yes! WhiskAutomator is 100% free to use for all basic features. We believe in providing the best automation tools for everyone.'
+                        text: 'Yes! Whiskbot is 100% free to use for all basic features. We believe in providing the best automation tools for everyone.'
                     }
                 },
                 {
@@ -19,7 +19,7 @@ export default function Page() {
                     name: 'Do I need to upload my images?',
                     acceptedAnswer: {
                         '@type': 'Answer',
-                        text: 'No. WhiskAutomator works directly with your local files to ensure maximum speed and privacy. We never store or upload your product images.'
+                        text: 'No. Whiskbot works directly with your local files to ensure maximum speed and privacy. We never store or upload your product images.'
                     }
                 },
                 {
@@ -43,13 +43,13 @@ export default function Page() {
         {
             '@context': 'https://schema.org',
             '@type': 'HowTo',
-            name: 'How to use Whisk Automator',
+            name: 'How to use Whiskbot',
             description: 'Generate bulk AI images for Google Whisk in 3 easy steps.',
             step: [
                 {
                     '@type': 'HowToStep',
                     name: 'Install Extension',
-                    text: 'Add WhiskAutomator to your Chrome browser with one click from the Web Store.',
+                    text: 'Add Whiskbot to your Chrome browser with one click from the Web Store.',
                     url: 'https://whisk-image-generator-extension.vercel.app/register'
                 },
                 {

@@ -2,6 +2,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Loader, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -73,15 +74,18 @@ function LoginForm() {
             >
                 <Card className="card-base border-none overflow-hidden pb-8">
                     <CardHeader className="text-center pt-10 pb-6">
-                        <motion.div
-                            className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary flex items-center justify-center text-black text-3xl font-black shadow-lg shadow-primary/30"
-                            whileHover={{ rotate: 360 }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            W
-                        </motion.div>
+                        <div className="flex justify-center mb-6">
+                            <Image
+                                src="/logo.png"
+                                alt="Whiskbot"
+                                width={120}
+                                height={120}
+                                className="object-contain mix-blend-multiply"
+                                style={{ width: '120px', height: 'auto' }}
+                            />
+                        </div>
                         <CardTitle className="text-4xl font-black mb-2 text-gray-900">Welcome Back</CardTitle>
-                        <CardDescription className="text-gray-500 font-bold">Sign in to continue to WhiskAutomator</CardDescription>
+                        <CardDescription className="text-gray-500 font-bold">Sign in to continue to Whiskbot</CardDescription>
                     </CardHeader>
 
                     <CardContent>
