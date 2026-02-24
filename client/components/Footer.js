@@ -29,7 +29,7 @@ export default function Footer() {
             { name: 'Status', href: '#' }
         ],
         legal: [
-            { name: 'Privacy Policy', href: '#' },
+            { name: 'Privacy Policy', href: '/privacy-policy' },
             { name: 'Terms of Service', href: '#' },
             { name: 'Cookie Policy', href: '#' },
             { name: 'Licenses', href: '#' }
