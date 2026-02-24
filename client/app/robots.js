@@ -5,6 +5,6 @@ export default function robots() {
             allow: '/',
             disallow: ['/api/', '/dashboard/private/'],
         },
-        sitemap: 'https://whisk-image-generator-extension.vercel.app/sitemap.xml',
+        sitemap: 'https://whiskbot.in/sitemap.xml',
     };
 }

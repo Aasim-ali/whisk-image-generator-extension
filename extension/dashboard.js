@@ -835,7 +835,7 @@ const limitModal = document.getElementById("limitModal");
 const upgradeBtn = document.getElementById("upgradeBtn");
 
 // Redirect URL
-const WEBSITE_URL = "https://whisk-image-generator-extension.vercel.app/";
+const WEBSITE_URL = "https://whiskbot.in/";
 
 if (signupLink) {
   signupLink.addEventListener("click", (e) => {

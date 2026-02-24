@@ -15,13 +15,13 @@ export default function PlansLayout({ children }) {
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Home',
-                item: 'https://whisk-image-generator-extension.vercel.app',
+                item: 'https://whiskbot.in',
             },
             {
                 '@type': 'ListItem',
                 position: 2,
                 name: 'Plans',
-                item: 'https://whisk-image-generator-extension.vercel.app/plans',
+                item: 'https://whiskbot.in/plans',
             },
         ],
     };

@@ -1,5 +1,5 @@
 export default function sitemap() {
-    const baseUrl = 'https://whisk-image-generator-extension.vercel.app';
+    const baseUrl = 'https://whiskbot.in';
 
     return [
         {

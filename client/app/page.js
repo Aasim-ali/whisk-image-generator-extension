@@ -50,19 +50,19 @@ export default function Page() {
                     '@type': 'HowToStep',
                     name: 'Install Extension',
                     text: 'Add Whiskbot to your Chrome browser with one click from the Web Store.',
-                    url: 'https://whisk-image-generator-extension.vercel.app/register'
+                    url: 'https://whiskbot.in/register'
                 },
                 {
                     '@type': 'HowToStep',
                     name: 'Connect Folder',
                     text: 'Select the local folder containing your product images. No uploads needed.',
-                    url: 'https://whisk-image-generator-extension.vercel.app/register'
+                    url: 'https://whiskbot.in/register'
                 },
                 {
                     '@type': 'HowToStep',
                     name: 'Run Automator',
                     text: 'Sit back and watch as we generate and download hundreds of images instantly.',
-                    url: 'https://whisk-image-generator-extension.vercel.app/register'
+                    url: 'https://whiskbot.in/register'
                 }
             ]
         }

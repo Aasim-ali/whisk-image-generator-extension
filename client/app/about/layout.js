@@ -15,13 +15,13 @@ export default function AboutLayout({ children }) {
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Home',
-                item: 'https://whisk-image-generator-extension.vercel.app',
+                item: 'https://whiskbot.in',
             },
             {
                 '@type': 'ListItem',
                 position: 2,
                 name: 'About',
-                item: 'https://whisk-image-generator-extension.vercel.app/about',
+                item: 'https://whiskbot.in/about',
             },
         ],
     };

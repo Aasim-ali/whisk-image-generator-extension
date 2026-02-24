@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://whisk-image-generator-extension.vercel.app'),
+  metadataBase: new URL('https://whiskbot.in'),
   title: {
     default: 'Whiskbot - One-Click Bulk Google Whisk AI Image Generator',
     template: '%s | Whiskbot'
@@ -31,7 +31,7 @@ export const metadata = {
     'AI image batch processing',
     'e-commerce image automation'
   ],
-  authors: [{ name: 'Whisk Team', url: 'https://whisk-image-generator-extension.vercel.app' }],
+  authors: [{ name: 'Whisk Team', url: 'https://whiskbot.in' }],
   creator: 'Whisk Team',
   publisher: 'Whiskbot',
   alternates: {
@@ -45,7 +45,7 @@ export const metadata = {
   openGraph: {
     title: 'Whiskbot - #1 Bulk Google Whisk AI Automator',
     description: 'Generate hundreds of professional product images with one click. The ultimate automation tool for Google Whisk specialists.',
-    url: 'https://whisk-image-generator-extension.vercel.app',
+    url: 'https://whiskbot.in',
     siteName: 'Whiskbot',
     locale: 'en_US',
     type: 'website',
@@ -77,7 +77,7 @@ export const metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: 'em6AQUsXzzaX0fOmz6wNBfVVPoEn8K88B-rhOZBtUDU',
   },
 };
 
@@ -94,8 +94,8 @@ export default function RootLayout({ children }) {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'Whiskbot',
-      url: 'https://whisk-image-generator-extension.vercel.app',
-      logo: 'https://whisk-image-generator-extension.vercel.app/favicon.ico',
+      url: 'https://whiskbot.in',
+      logo: 'https://whiskbot.in/favicon.ico',
       sameAs: [
         'https://twitter.com/whisk_ai',
         'https://github.com/whisk-team'
@@ -119,7 +119,7 @@ export default function RootLayout({ children }) {
         ratingCount: '150',
       },
       featureList: 'Batch Processing, Smart Templates, Live Monitoring, Auto-Download',
-      screenshot: 'https://whisk-image-generator-extension.vercel.app/og-image.jpg',
+      screenshot: 'https://whiskbot.in/og-image.jpg',
       author: {
         '@type': 'Organization',
         name: 'Whisk Team',

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const CLIENT_URL = 'https://whisk-image-generator-extension.vercel.app'; // Should match your client URL
+    const CLIENT_URL = 'https://whiskbot.in/'; // Should match your client URL
 
     document.getElementById('loginGoogle').addEventListener('click', () => {
         chrome.tabs.create({ url: `${CLIENT_URL}/login?extension=true` });
