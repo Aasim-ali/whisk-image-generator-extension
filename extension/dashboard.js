@@ -626,7 +626,7 @@ chrome.runtime.sendMessage({ action: "GET_SOCKET_STATUS" }, (response) => {
 });
 
 // Initialize
-logToConsole("✨ Whisk Image Generator Bot Ready", "success");
+logToConsole("✨ Whisk Bot Ready", "success");
 logToConsole("📌 Step 1: Select images (folder or files)", "info");
 logToConsole("📌 Step 2: Enter all prompts for different variations", "info");
 logToConsole("📌 Step 3: Click Start Generation", "info");

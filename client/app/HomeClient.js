@@ -161,7 +161,7 @@ export default function HomeClient() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <Link href="/register">
+              <a href="https://chromewebstore.google.com/detail/whisk-image-generator-bot/fmiamlibmpgnaocmhkghffnadkcclebn" target="_blank" rel="noopener noreferrer">
                 <motion.button
                   className="px-12 py-5 rounded-3xl bg-primary text-black text-2xl font-black shadow-2xl shadow-primary/40 flex items-center gap-3 group"
                   whileHover={{ scale: 1.05, y: -5 }}
@@ -173,7 +173,7 @@ export default function HomeClient() {
                   Try it now
                   <ChevronRight size={28} className="transition-transform group-hover:translate-x-1" />
                 </motion.button>
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div
@@ -512,11 +512,11 @@ export default function HomeClient() {
             <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/20 blur-[80px] rounded-full" />
             <h2 className="text-6xl md:text-8xl font-black mb-10 leading-[0.9] tracking-tight">Ready to <br />Automate?</h2>
             <p className="text-2xl font-black mb-16 max-w-xl mx-auto opacity-70 leading-relaxed uppercase tracking-tighter">Join 10,000+ creators and start generating product images at scale today.</p>
-            <Link href="/register">
+            <a href="https://chromewebstore.google.com/detail/whisk-image-generator-bot/fmiamlibmpgnaocmhkghffnadkcclebn" target="_blank" rel="noopener noreferrer">
               <button className="px-16 py-8 rounded-[2rem] bg-black text-white text-3xl font-black shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 active:scale-95">
                 Start Generating Now
               </button>
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>

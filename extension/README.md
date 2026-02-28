@@ -1,4 +1,4 @@
-# Whisk Image Generator Bot - Chrome Extension
+# Whisk Bot - Chrome Extension
 
 ## 📦 Installation Instructions
 
@@ -12,7 +12,7 @@
 
 3. **Pin Extension**
    - Click the puzzle icon in Chrome toolbar
-   - Pin "Whisk Image Generator Bot"
+   - Pin "Whisk Bot"
 
 ## 🚀 How to Use
 
