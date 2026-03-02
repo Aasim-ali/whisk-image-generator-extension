@@ -54,6 +54,23 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Re-fetch the current user from the server and sync into state + localStorage.
+    // Call this after any action that mutates user data server-side (e.g. plan purchase).
+    const refreshUser = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const freshUser = res.data;
+            localStorage.setItem('user', JSON.stringify(freshUser));
+            setUser(freshUser);
+        } catch (err) {
+            console.error('refreshUser failed:', err);
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -62,7 +79,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );
