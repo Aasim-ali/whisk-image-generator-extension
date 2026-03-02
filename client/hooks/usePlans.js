@@ -9,7 +9,7 @@ export const usePlans = () => {
     const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -73,6 +73,8 @@ export const usePlans = () => {
                             },
                             { headers: { Authorization: `Bearer ${token}` } }
                         );
+                        // Sync the updated planId/credits into auth context + localStorage
+                        await refreshUser();
                         toast.success(`🎉 Payment Successful! You now have ${verifyRes.data.newCredits} credits.`);
                         router.push('/');
                     } catch (error) {
