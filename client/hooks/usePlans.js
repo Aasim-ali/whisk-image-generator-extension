@@ -48,10 +48,10 @@ export const usePlans = () => {
 
             // 2. Open Razorpay
             const options = {
-                key: key || 'YOUR_RAZORPAY_KEY_ID_HERE', // Fallback if API fails
+                key: key,
                 amount: amount.toString(),
                 currency: currency,
-                name: 'Whisk Generator',
+                name: 'Whiskbot',
                 description: `Purchase ${plan.name} Plan`,
                 order_id: order_id,
                 handler: async function (response) {
