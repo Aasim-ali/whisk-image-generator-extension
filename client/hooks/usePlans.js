@@ -1,7 +1,9 @@
+'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './useAuth';
+import { toast } from 'sonner';
 
 export const usePlans = () => {
     const [plans, setPlans] = useState([]);
@@ -28,7 +30,9 @@ export const usePlans = () => {
     };
 
     const purchasePlan = async (plan) => {
-        if (!user) {
+        const token = localStorage.getItem('token');
+
+        if (!user || !token) {
             router.push('/login');
             return;
         }
@@ -39,10 +43,11 @@ export const usePlans = () => {
             const { data: { key } } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/payment/key`);
 
             // 1. Create Order
-            const orderRes = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payment/order`, {
-                planId: plan.id,
-                userId: user.id,
-            });
+            const orderRes = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/payment/order`,
+                { planId: plan.id },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
 
             const { id: order_id, amount, currency } = orderRes.data;
 
@@ -57,17 +62,21 @@ export const usePlans = () => {
                 handler: async function (response) {
                     // 3. Verify Payment
                     try {
-                        const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payment/verify`, {
-                            razorpayOrderId: response.razorpay_order_id,
-                            razorpayPaymentId: response.razorpay_payment_id,
-                            razorpaySignature: response.razorpay_signature,
-                            userId: user.id,
-                            planId: plan.id,
-                        });
-                        alert(`Payment Successful! You now have ${verifyRes.data.newCredits} credits.`);
+                        const verifyRes = await axios.post(
+                            `${process.env.NEXT_PUBLIC_API_URL}/payment/verify`,
+                            {
+                                razorpayOrderId: response.razorpay_order_id,
+                                razorpayPaymentId: response.razorpay_payment_id,
+                                razorpaySignature: response.razorpay_signature,
+                                userId: user.id,
+                                planId: plan.id,
+                            },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                        toast.success(`🎉 Payment Successful! You now have ${verifyRes.data.newCredits} credits.`);
                         router.push('/');
                     } catch (error) {
-                        alert('Payment Verification Failed');
+                        toast.error('Payment verification failed. Please contact support.');
                         console.error(error);
                     }
                 },
@@ -76,7 +85,7 @@ export const usePlans = () => {
                     email: user.email,
                 },
                 theme: {
-                    color: '#8a2be2',
+                    color: '#FFDD00',
                 },
             };
 
@@ -84,7 +93,7 @@ export const usePlans = () => {
             rzp1.open();
         } catch (err) {
             console.error('Purchase error:', err);
-            alert('Something went wrong with the purchase. Check console for details.');
+            toast.error('Something went wrong with the purchase. Please try again.');
         } finally {
             setLoading(false);
         }

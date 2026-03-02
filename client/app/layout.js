@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import { Providers } from './providers';
-import { ToastProvider } from '../components/Toast';
+import { Toaster } from 'sonner';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -135,14 +135,33 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <Providers>
-          <ToastProvider>
-            <Navbar />
-            <main className="main-wrapper min-h-screen">
-              {children}
-            </main>
-            <Footer />
-            <ScrollToTop />
-          </ToastProvider>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                fontWeight: '700',
+                borderRadius: '1rem',
+                border: '2px solid #f3f4f6',
+                boxShadow: '0 10px 15px -3px rgba(0,0,0,0.06)',
+              },
+              classNames: {
+                success: 'border-emerald-200',
+                error: 'border-red-200',
+                warning: 'border-yellow-200',
+                info: 'border-blue-200',
+              },
+            }}
+            richColors
+            closeButton
+            duration={4000}
+          />
+          <Navbar />
+          <main className="main-wrapper min-h-screen">
+            {children}
+          </main>
+          <Footer />
+          <ScrollToTop />
         </Providers>
       </body>
     </html>
