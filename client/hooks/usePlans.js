@@ -40,7 +40,7 @@ export const usePlans = () => {
         setLoading(true);
         try {
             // 0. Get Razorpay Key
-            const { data: { key } } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/payment/key`);
+            const { data: { key } } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/payment/key`, { headers: { Authorization: `Bearer ${token}` } });
 
             // 1. Create Order
             const orderRes = await axios.post(
