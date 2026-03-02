@@ -22,13 +22,17 @@ export const AuthProvider = ({ children }) => {
         loadUser();
     }, []);
 
+    const setUserData = (user, token) => {
+        localStorage.setItem("token", token)
+        localStorage.setItem('user', JSON.stringify(user));
+        setUser(user);
+    }
+
     const login = async (email, password) => {
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, { email, password });
             const { token, user } = res.data;
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
-            setUser(user);
+            setUserData(user, token)
             return { success: true };
         } catch (error) {
             return {
@@ -42,9 +46,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, { name, email, password });
             const { token, user } = res.data;
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
-            setUser(user);
+            setUserData(user, token)
             return { success: true };
         } catch (error) {
             return {

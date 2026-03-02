@@ -101,5 +101,20 @@ export const usePlans = () => {
         }
     };
 
-    return { plans, loading, error, purchasePlan };
+    const usePlanById = async (id) => {
+        if (plans.length) {
+            return plans.find((plan) => plan.id === id);
+        }
+        setLoading(true);
+        try {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plans/getPlanById/${id}`);
+            return res.data;
+        } catch (err) {
+            console.error('Error fetching plans:', err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return { plans, loading, error, purchasePlan, usePlanById };
 };

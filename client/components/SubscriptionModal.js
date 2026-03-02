@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, BadgeCheck, Calendar, Zap, Crown, Clock, AlertCircle, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
+import { usePlans } from '@/hooks/usePlans';
 
 const FREE_PLAN = {
     name: 'Free',
@@ -15,8 +16,9 @@ const FREE_PLAN = {
 
 export default function SubscriptionModal({ isOpen, onClose, user }) {
     const [planDetails, setPlanDetails] = useState(null);
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const { usePlanById, loading } = usePlans();
 
     // Wait for client mount before using portal (SSR safety)
     useEffect(() => { setMounted(true); }, []);
@@ -25,19 +27,8 @@ export default function SubscriptionModal({ isOpen, onClose, user }) {
 
     useEffect(() => {
         if (!isOpen || isFreePlan) return;
-        const fetchPlan = async () => {
-            setLoading(true);
-            try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plans/getPlanList`);
-                const found = res.data.find((p) => p.id === user.planId || p._id === user.planId);
-                setPlanDetails(found || null);
-            } catch (e) {
-                console.error('Failed to fetch plan details', e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPlan();
+        const plan = usePlanById(user.planId);
+        setPlanDetails(plan);
     }, [isOpen, user?.planId]);
 
     // Lock body scroll & handle Escape

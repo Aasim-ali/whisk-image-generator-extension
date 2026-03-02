@@ -7,6 +7,8 @@ chrome.storage.local.get(['authToken'], (result) => {
   }
 });
 
+const API_URL = "https://whisk-api.duckdns.org";
+
 // UI Elements
 const selectFolderBtn = document.getElementById("selectFolderBtn");
 const selectImagesBtn = document.getElementById("selectImagesBtn");
@@ -931,19 +933,27 @@ async function initAuth() {
   const result = await chrome.storage.local.get(["authToken", "userEmail", "user"]);
   if (result.authToken) {
     authToken = result.authToken;
-    if (result.user) {
-      console.log(result.user);
-      if (typeof result.user === "object") {
-        currentUser = result.user;
-      } else {
-        try {
-          currentUser = JSON.parse(result.user);
-
-        } catch (e) { }
-      }
+    if (result.user && result.user.plan) {
+      currentUser = result.user;
       updateProfileBtn(currentUser);
     } else {
-      console.log("user data not found")
+      console.log("user data not found, fetchig from server...")
+      try {
+        const result = await fetch(`${API_URL}/api/auth/me`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`,
+          },
+        });
+        const data = await result.json();
+        if (data) {
+          currentUser = data;
+          await chrome.storage.local.set({ user: JSON.stringify(data) });
+        }
+      } catch (error) {
+        console.log("error:", error.message)
+      }
     }
     connectSocket();
   } else {
@@ -1011,11 +1021,11 @@ async function handleLogin() {
 
 loginBtn.addEventListener("click", handleLogin);
 
+
 // Socket.io Connection
 async function connectSocket() {
   if (socket && socket.connected) return;
 
-  const API_URL = "https://whisk-api.duckdns.org";
 
   // Get Device ID
   let { deviceId } = await chrome.storage.local.get("deviceId");

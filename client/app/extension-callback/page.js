@@ -3,16 +3,21 @@
 import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 function ExtensionCallbackContent() {
     const searchParams = useSearchParams();
+    const { login } = useAuth()
 
     useEffect(() => {
         const token = searchParams.get('token');
+        const user = searchParams.get("user")
         // The extension content script will sniff this URL and capture the token
         if (token) {
             // Optional: Send message to extension if needed, but URL sniffing is usually enough
-            console.log('Authentication successful for extension');
+            toast.success('Login Success');
+            login(user, token)
         }
     }, [searchParams]);
 
