@@ -14,6 +14,11 @@ const inter = Inter({
 
 export const metadata = {
   metadataBase: new URL('https://whiskbot.in'),
+  icons: {
+    icon: '/logo.jpeg',
+    shortcut: '/logo.jpeg',
+    apple: '/logo.jpeg',
+  },
   title: {
     default: 'Whiskbot - One-Click Bulk Google Whisk AI Image Generator',
     template: '%s | Whiskbot'
