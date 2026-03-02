@@ -292,8 +292,8 @@ class WhiskProvider extends AutomationProvider {
     const dropAreas = Array.from(document.querySelectorAll(this.SELECTORS.fileDropArea));
     log(`Found ${dropAreas.length} drop areas`, "info");
 
-    if (dropAreas.length < 3) {
-      throw new Error("Expected 3 drop areas (Subject, Scene, Style), found " + dropAreas.length);
+    if(!dropAreas.length){
+      throw new Error("No drop areas found");
     }
 
     const areaIndexes = [
@@ -358,7 +358,8 @@ class WhiskProvider extends AutomationProvider {
       const uploadPromises = areaIndexes.map(async (areaIndex, index) => {
         if (areaIndex.image) {
           if (!areaIndex.dropArea) {
-            throw new Error(`Drop area not found for image index ${index} (0=Subject, 1=Scene, 2=Style). Found ${dropAreas.length} areas.`);
+            log(`Drop area not found for image index ${index} (0=Subject, 1=Scene, 2=Style). Found ${dropAreas.length} areas.`, "error");
+            return;
           }
           await uploadToDropArea(areaIndex.dropArea, areaIndex.image);
           log("✓ Image pasted successfully", "success");

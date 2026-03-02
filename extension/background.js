@@ -509,7 +509,7 @@ async function processNextImage() {
         }
 
         if (retry < MAX_RETRIES_PER_IMAGE - 1) {
-          const backoffTime = 2000 * (retry + 1); // Exponential backoff
+          const backoffTime = 5000; // Exponential backoff
           sendLogToPopup(`⏳ Waiting ${backoffTime}ms before retry...`, "info");
           await sleep(backoffTime);
         }

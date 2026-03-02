@@ -53,7 +53,17 @@ function LoginForm() {
         const result = await login(email, password);
 
         if (result.success) {
-            router.push('/');
+            if (isExtension) {
+                try {
+                    const user = JSON.parse(userStr);
+                    const redirectUrl = `/extension-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
+                    window.location.href = redirectUrl;
+                } catch (e) {
+                    console.error("Error parsing user data for redirect", e);
+                }
+            } else {
+                router.push('/');
+            }
         } else {
             setError(result.error);
         }
@@ -76,7 +86,7 @@ function LoginForm() {
                     <CardHeader className="text-center pt-10 pb-6">
                         <div className="flex justify-center mb-6">
                             <Image
-                                src="/logo.png"
+                                src="/whisk.png"
                                 alt="Whiskbot"
                                 width={120}
                                 height={120}

@@ -76,7 +76,7 @@ function RegisterForm() {
                     <CardHeader className="text-center pt-10 pb-6">
                         <div className="flex justify-center mb-6">
                             <Image
-                                src="/logo.png"
+                                src="/whisk.png"
                                 alt="Whiskbot"
                                 width={120}
                                 height={120}

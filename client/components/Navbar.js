@@ -41,7 +41,7 @@ export default function Navbar() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center transition-transform active:scale-95 group">
                     <Image
-                        src="/logo.png"
+                        src="/whisk.png"
                         alt="Whiskbot Logo"
                         width={160}
                         height={90}

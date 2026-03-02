@@ -57,7 +57,7 @@ export default function Footer() {
                         <div>
                             <Link href="/" className="inline-flex items-center transition-transform active:scale-95 group">
                                 <Image
-                                    src="/logo.png"
+                                    src="/whisk.png"
                                     alt="Whiskbot Logo"
                                     width={180}
                                     height={180}

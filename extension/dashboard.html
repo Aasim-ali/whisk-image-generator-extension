@@ -15,11 +15,26 @@
 </head>
 
 <body>
+  <!-- Navbar -->
+  <nav class="dash-navbar">
+    <div class="dash-navbar__brand">
+      <span class="dash-navbar__logo">⚡</span>
+      <div>
+        <div class="dash-navbar__title">Whisk Bot</div>
+        <div class="dash-navbar__sub">Automate image blending on Google Whisk</div>
+      </div>
+    </div>
+    <div class="dash-navbar__right">
+      <div class="dash-navbar__status">
+        <div id="socketStatus" class="dash-socket-badge">🔴 Disconnected</div>
+        <div id="usageDisplay" class="dash-usage-chip" style="display:none;">
+          Daily: <span id="usageCount">—</span>
+        </div>
+      </div>
+      <button id="profileBtn" class="dash-profile-btn" title="Profile">?</button>
+    </div>
+  </nav>
   <div class="container">
-    <header>
-      <h1> Whisk Bot</h1>
-      <p class="subtitle">Automate image blending on Google Whisk</p>
-    </header>
 
     <!-- Mode Selection (Hidden for Whisk implementation) -->
     <section class="section" style="text-align: center; display: none;">
@@ -55,6 +70,18 @@
       <input type="file" id="folderInput" webkitdirectory multiple style="display: none" />
       <input type="file" id="filesInput" accept="image/*" multiple style="display: none" />
       <div id="imageCount" class="info-text">No images selected</div>
+      <!-- Subject Image Strip -->
+      <div id="subjectImageStrip" style="
+        display: none;
+        flex-direction: row;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 10px 0 4px;
+        margin-top: 8px;
+        scrollbar-width: thin;
+      ">
+        <!-- Thumbnails injected by JS -->
+      </div>
     </section>
 
     <!-- Optional Scene Image -->
@@ -93,28 +120,24 @@
       <div class="prompts-container" id="promptsContainer">
         <div class="prompt-group">
           <label for="prompt1">Prompt :</label>
-          <textarea id="prompt1" class="prompt-input" placeholder="e.g., Ultra-realistic front view...">
-Ultra-realistic luxury jewelry photography of this ring, captured from a precise top-down flat lay angle, ring perfectly centered and aligned, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+          <textarea id="prompt1" class="prompt-input" placeholder="e.g., Ultra-realistic front view..."></textarea>
         </div>
         <div class="prompt-group">
           <label for="prompt2">Prompt :</label>
-          <textarea id="prompt2" class="prompt-input" placeholder="e.g., Side view with dramatic lighting...">
-Ultra-realistic luxury jewelry photography of this ring, captured from a clean right side profile angle, emphasizing band thickness and setting height, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+          <textarea id="prompt2" class="prompt-input"
+            placeholder="e.g., Side view with dramatic lighting..."></textarea>
         </div>
         <div class="prompt-group">
           <label for="prompt3">Prompt :</label>
-          <textarea id="prompt3" class="prompt-input" placeholder="e.g., Top-down perspective...">
-Ultra-realistic luxury jewelry photography of this ring, captured from a low-angle hero perspective slightly below the ring level, creating a premium dramatic look, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+          <textarea id="prompt3" class="prompt-input" placeholder="e.g., Top-down perspective..."></textarea>
         </div>
         <div class="prompt-group">
           <label for="prompt4">Prompt :</label>
-          <textarea id="prompt4" class="prompt-input" placeholder="e.g., Close-up detail shot...">
-Ultra-realistic luxury jewelry photography of this ring, captured from a straight back view angle showcasing the rear of the band and setting, ring placed on soft ivory satin fabric with smooth flowing folds and gently rolled curves, editorial fashion background, creamy off-white satin texture, soft side lighting creating elegant shadows, premium studio setup, shallow depth of field, high-end Etsy product photography, minimal clean composition, ultra-sharp metal reflections, realistic gemstone sparkle, consistent background, no props, no text, no hands, 8k quality,</textarea>
+          <textarea id="prompt4" class="prompt-input" placeholder="e.g., Close-up detail shot..."></textarea>
         </div>
         <div class="prompt-group">
           <label for="prompt5">Prompt :</label>
-          <textarea id="prompt5" class="prompt-input" placeholder="e.g., 45-degree angle showcase...">
-Ultra-realistic luxury jewellery photography of this ring worn on a female model's hand, elegant natural hand pose, realistic skin texture, ring in sharp focus, hand resting on soft ivory satin fabric with smooth flowing folds and gently rolled curves</textarea>
+          <textarea id="prompt5" class="prompt-input" placeholder="e.g., 45-degree angle showcase..."></textarea>
         </div>
       </div>
       <div class="button-group" style="margin-top: 12px">
@@ -248,20 +271,93 @@ Ultra-realistic luxury jewellery photography of this ring worn on a female model
     </div>
   </div>
 
-  <!-- Daily Usage Display (In Header) -->
-  <div id="usageDisplay"
-    style="position: fixed; top: 10px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em; z-index: 1000; display: none;">
-    Daily Limit: <span id="usageCount">Loading...</span>
-  </div>
-
-  <!-- Socket Status Badge -->
-  <div id="socketStatus"
-    style="position: fixed; top: 10px; left: 20px; padding: 5px 12px; border-radius: 20px; font-size: 0.82em; font-weight: 700; z-index: 1000; transition: all 0.3s ease; background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.35);">
-    🔴 Disconnected
-  </div>
+  <!-- Socket Status Badge and Usage are now in the navbar -->
 
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
+
+  <!-- User Profile Modal -->
+  <div id="profileModal" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 60px 16px 0;
+  ">
+    <div style="
+      background: #fff;
+      border-radius: 20px;
+      width: 280px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+      overflow: hidden;
+      animation: slideDown 0.18s ease;
+    ">
+      <!-- Header -->
+      <div id="profileModalHeader" style="
+        padding: 18px 18px 14px;
+        border-bottom: 1.5px solid #f3f4f6;
+        background: #FFFBE6;
+      ">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div id="profileAvatar" style="
+              width:42px; height:42px; border-radius:50%;
+              background:#FFDD00; display:flex; align-items:center;
+              justify-content:center; font-weight:900; font-size:1.1em;
+              flex-shrink:0;
+            ">?</div>
+            <div>
+              <div id="profileName" style="font-weight:800; font-size:0.95em; color:#111;">—</div>
+              <div id="profileEmail" style="font-size:0.75em; color:#6b7280; margin-top:1px;">—</div>
+            </div>
+          </div>
+          <button id="closeProfileModal" style="
+            border:none; background:none; font-size:1.2em;
+            cursor:pointer; color:#9ca3af; padding:0 2px;
+            line-height:1;
+          ">×</button>
+        </div>
+      </div>
+      <!-- Plan Info -->
+      <div id="profilePlanSection" style="padding:14px 18px; border-bottom:1.5px solid #f3f4f6;">
+        <!-- injected by JS -->
+      </div>
+      <!-- Footer -->
+      <div style="padding:12px 18px;">
+        <a id="profileUpgradeBtn" href="#" style="
+          display:none;
+          width:100%;
+          box-sizing:border-box;
+          text-align:center;
+          padding:10px;
+          background:#FFDD00;
+          color:#000;
+          font-weight:900;
+          border-radius:12px;
+          text-decoration:none;
+          font-size:0.88em;
+          margin-bottom:8px;
+          display:none;
+        ">🚀 Upgrade Plan</a>
+        <button id="profileLogoutBtn" style="
+          width:100%;
+          padding:10px;
+          background:#fee2e2;
+          color:#dc2626;
+          border:none;
+          border-radius:12px;
+          font-weight:800;
+          font-size:0.88em;
+          cursor:pointer;
+          margin-top:6px;
+        ">Logout</button>
+      </div>
+    </div>
+  </div>
 
   <script src="libs/socket.io.min.js"></script>
   <script src="db.js"></script>

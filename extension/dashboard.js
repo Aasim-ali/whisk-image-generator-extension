@@ -83,6 +83,7 @@ let sceneImage = null;
 let styleImage = null;
 let isRunning = false;
 let socketConnected = false;
+let currentUser = null; // full user object
 
 const socketStatusEl = document.getElementById('socketStatus');
 
@@ -137,7 +138,8 @@ async function checkResumeState() {
         imageCount.textContent = `✓ ${storedImages.length} image(s) loaded from storage`;
         imageCount.style.background = "#d4edda";
         imageCount.style.color = "#155724";
-        selectedImages = storedImages; // These are base64 objects now, not File objects.
+        selectedImages = storedImages;
+        renderSubjectStrip();
 
         logToConsole(`Restored ${storedImages.length} images from storage`, "info");
       } else {
@@ -377,6 +379,75 @@ async function updateSelectedImageUI(error = false) {
       showToast("error", "No Images", "No valid images found in the selected folder");
     }
   }
+  renderSubjectStrip();
+}
+
+// Render the horizontal image strip below the image counter
+function renderSubjectStrip() {
+  const strip = document.getElementById("subjectImageStrip");
+  if (!strip) return;
+  strip.innerHTML = "";
+
+  if (!selectedImages || selectedImages.length === 0) {
+    strip.style.display = "none";
+    return;
+  }
+
+  strip.style.display = "flex";
+
+  selectedImages.forEach((img, idx) => {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "position:relative; flex-shrink:0;";
+
+    const thumb = document.createElement("img");
+    thumb.src = img.data;
+    thumb.title = img.name || `Image ${idx + 1}`;
+    thumb.style.cssText = `
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      display: block;
+      background: #f3f4f6;
+    `;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "✕";
+    removeBtn.title = "Remove";
+    removeBtn.style.cssText = `
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      font-size: 9px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    `;
+
+    removeBtn.addEventListener("click", async () => {
+      selectedImages.splice(idx, 1);
+      // Persist to IndexedDB
+      try { await db.saveImages(selectedImages); } catch (e) { console.error(e); }
+      await updateSelectedImageUI();
+      validateInputs();
+    });
+
+    wrapper.appendChild(thumb);
+    wrapper.appendChild(removeBtn);
+    strip.appendChild(wrapper);
+  });
 }
 
 // Handle Scene Image Selection
@@ -857,12 +928,26 @@ let dailyLimitMax = 5;
 let dailyUsageCurrent = 0;
 
 async function initAuth() {
-  const result = await chrome.storage.local.get(["authToken", "userEmail"]);
+  const result = await chrome.storage.local.get(["authToken", "userEmail", "user"]);
   if (result.authToken) {
     authToken = result.authToken;
+    if (result.user) {
+      console.log(result.user);
+      if (typeof result.user === "object") {
+        currentUser = result.user;
+      } else {
+        try {
+          currentUser = JSON.parse(result.user);
+
+        } catch (e) { }
+      }
+      updateProfileBtn(currentUser);
+    } else {
+      console.log("user data not found")
+    }
     connectSocket();
   } else {
-    showLoginModal();
+    window.location.href = 'login.html';
   }
 }
 
@@ -903,9 +988,11 @@ async function handleLogin() {
       throw new Error(data.message || "Login failed");
     }
 
-    // Success
+    // Success — save full user object
     authToken = data.token;
-    await chrome.storage.local.set({ authToken, userEmail: data.user.email });
+    currentUser = data.user;
+    await chrome.storage.local.set({ authToken, userEmail: data.user.email, user: JSON.stringify(data.user) });
+    updateProfileBtn(data.user);
 
     hideLoginModal();
     logToConsole(`✓ Logged in as ${data.user.email}`, "success");
@@ -961,7 +1048,7 @@ async function connectSocket() {
       // Token invalid?
       chrome.storage.local.remove(["authToken"]);
       socket.disconnect();
-      showLoginModal();
+      window.location.href = 'login.html';
     } else if (err.message.includes("Device limit")) {
       showToast("error", "Device Limit", err.message);
       alert(err.message);
@@ -1023,6 +1110,92 @@ validateInputs = function () {
   } else {
     startBtn.title = "";
   }
+}
+
+// ─── Profile Modal ────────────────────────────────────────────────────────────
+const profileBtn = document.getElementById("profileBtn");
+const profileModal = document.getElementById("profileModal");
+const closeProfileModal = document.getElementById("closeProfileModal");
+const profileNameEl = document.getElementById("profileName");
+const profileEmailEl = document.getElementById("profileEmail");
+const profileAvatarEl = document.getElementById("profileAvatar");
+const profilePlanSection = document.getElementById("profilePlanSection");
+const profileUpgradeBtn = document.getElementById("profileUpgradeBtn");
+const profileLogoutBtn = document.getElementById("profileLogoutBtn");
+
+function updateProfileBtn(user) {
+  if (!profileBtn || !user) return;
+  const initial = (user.name || user.email || "?").charAt(0).toUpperCase();
+  profileBtn.textContent = initial;
+}
+
+function openProfileModal(user) {
+  if (!user) return;
+  profileModal.style.display = "flex";
+
+  // Name / email
+  profileNameEl.textContent = user.name || "—";
+  profileEmailEl.textContent = user.email || "—";
+  profileAvatarEl.textContent = (user.name || user.email || "?").charAt(0).toUpperCase();
+
+  // Plan section
+  const hasPlan = user.plan && user.plan.id;
+  if (hasPlan) {
+    profileUpgradeBtn.style.display = "none";
+    const expiry = user.planExpiresAt
+      ? new Date(user.planExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : null;
+    profilePlanSection.innerHTML = `
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+        <span style="font-size:0.72em; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; color:#9ca3af;">Active Plan</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#FFFBE6; border-radius:12px; padding:10px 12px;">
+        <div>
+          <div style="font-weight:900; font-size:1em; color:#111;">${user.plan.name}</div>
+          <div style="font-size:0.75em; color:#6b7280; margin-top:2px;">${(user.plan.credits || 0).toLocaleString()} images${user.plan.durationDays ? ` · ${user.plan.durationDays} days` : ''}</div>
+        </div>
+        <span style="background:#FFDD00; border-radius:8px; padding:3px 9px; font-size:0.75em; font-weight:900;">PRO</span>
+      </div>
+      ${expiry ? `<div style="font-size:0.73em; color:#9ca3af; margin-top:6px;">Expires ${expiry}</div>` : ''}
+    `;
+  } else {
+    // Free plan
+    profilePlanSection.innerHTML = `
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+        <span style="font-size:0.72em; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; color:#9ca3af;">Active Plan</span>
+      </div>
+      <div style="background:#f9fafb; border-radius:12px; padding:10px 12px;">
+        <div style="font-weight:900; font-size:1em; color:#111;">Free</div>
+        <div style="font-size:0.75em; color:#6b7280; margin-top:2px;">5 images / day · 1 device</div>
+      </div>
+    `;
+    profileUpgradeBtn.style.display = "block";
+    profileUpgradeBtn.onclick = (e) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: "https://whiskbot.in/plans" });
+      profileModal.style.display = "none";
+    };
+  }
+}
+
+if (profileBtn) {
+  profileBtn.addEventListener("click", () => openProfileModal(currentUser));
+}
+if (closeProfileModal) {
+  closeProfileModal.addEventListener("click", () => profileModal.style.display = "none");
+}
+
+if (profileLogoutBtn) {
+  profileLogoutBtn.addEventListener("click", async () => {
+    await chrome.storage.local.remove(["authToken", "userEmail", "user"]);
+    currentUser = null;
+    authToken = null;
+    if (socket) socket.disconnect();
+    profileModal.style.display = "none";
+    updateSocketStatus(false);
+    profileBtn.textContent = "?";
+    window.location.href = 'login.html';
+  });
 }
 
 // Call init
